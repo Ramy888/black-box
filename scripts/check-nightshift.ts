@@ -8,5 +8,5 @@ console.log(`Meterless Runtime ${ai.baseUrl}: ${state}`);
 console.log(`Models: ${models.join(", ")}`);
 if (state !== "online") process.exit(1);
 const model = process.argv[2] ?? "meterless/auto";
-const reply = await ai.chat({ model, messages: [{ role: "user", content: "Reply with exactly: black box online" }], maxTokens: 20 });
+const reply = await ai.chat({ model, messages: [{ role: "user", content: "Reply with exactly: black box online" }], maxTokens: 1024 });
 console.log(`Asked ${model}; answered by ${reply.model}: ${reply.text}`);
