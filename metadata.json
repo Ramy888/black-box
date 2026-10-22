@@ -1,0 +1,12 @@
+{
+  "name": "Black Box",
+  "tagline": "A crash investigator for AI agents",
+  "track": "02 The Agent That Can Explain Why",
+  "sponsors": {
+    "zetaris": "Every evidence query runs through the Zetaris REST API across the incident's data sources.",
+    "meterless": "World Model engine for the incident timeline and replay; H-MEM engine for memory of past findings; Nightshift as the primary AI provider.",
+    "nvidia": "Nemotron powers the investigating agents through Nightshift.",
+    "cursor": "To be completed during the build."
+  },
+  "_note": "Field names are provisional until checked against the HackOS Submission Form Preview."
+}

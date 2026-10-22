@@ -1,0 +1,23 @@
+/* Token values from design/DESIGN.md (declared pre-existing design spec). */
+:root {
+  --ground: #DCDFE0; --surface: #F3F4F3; --ink: #15191C; --muted: #5B6368;
+  --grid: #C3C8CA; --rule: #B4BABD; --recorder: #FF4F00; --on-recorder: #15191C;
+  --instrument: #101315; --tag: #F2C230; --refuted: #B3261E; --survives: #1E6B57;
+  --display: "Archivo", sans-serif; --body: "Atkinson Hyperlegible Next", sans-serif; --mono: "B612 Mono", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --ground: #1A1D1F; --surface: #24292C; --ink: #E3E6E2; --muted: #9AA3A8;
+  --grid: #30373B; --rule: #3C4448; --recorder: #FF6A2B; --tag: #E3B52E; --refuted: #EF6159; --survives: #4DB393;
+} }
+:root[data-theme="dark"] {
+  --ground: #1A1D1F; --surface: #24292C; --ink: #E3E6E2; --muted: #9AA3A8;
+  --grid: #30373B; --rule: #3C4448; --recorder: #FF6A2B; --tag: #E3B52E; --refuted: #EF6159; --survives: #4DB393;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink); font: 400 15px/1.5 var(--body);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.wrap { max-width: 1320px; margin: 0 auto; padding: 24px 16px 64px; }
+.muted { color: var(--muted); }
