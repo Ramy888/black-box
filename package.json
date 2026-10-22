@@ -13,7 +13,9 @@
     "test": "vitest run",
     "check:zetaris": "tsx scripts/check-zetaris.ts",
     "check:nightshift": "tsx scripts/check-nightshift.ts",
-    "scenario:load": "tsx scenario/load.ts"
+    "scenario:load": "tsx scenario/load.ts",
+    "culprit": "tsx scenario/run-culprit.ts",
+    "reset": "tsx scenario/load.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",

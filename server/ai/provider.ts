@@ -23,9 +23,14 @@ export interface MeterlessOptions {
   baseUrl?: string;
   token: string;
   fetch?: typeof globalThis.fetch;
+  sleep?: (ms: number) => Promise<void>;
 }
 
-export function createMeterless({ baseUrl = "http://127.0.0.1:8088", token, fetch = globalThis.fetch }: MeterlessOptions) {
+const RETRY_DELAYS_MS = [2000, 4000, 8000, 16000, 32000];
+// NVIDIA's free endpoint rate-limits; Nightshift passes that through as 429 or as 502 "nvidia_429".
+const isRateLimited = (status: number, body: string) => status === 429 || /_429\b|"status":\s*429/.test(body);
+
+export function createMeterless({ baseUrl = "http://127.0.0.1:8088", token, fetch = globalThis.fetch, sleep = (ms) => new Promise((r) => setTimeout(r, ms)) }: MeterlessOptions) {
   if (!token || token === "rt-local") {
     throw new MeterlessError("Meterless Runtime token missing. Set METERLESS_RUNTIME_TOKEN or METERLESS_TOKEN_FILE (Nightshift's runtime-token).");
   }
@@ -46,21 +51,29 @@ export function createMeterless({ baseUrl = "http://127.0.0.1:8088", token, fetc
   }
 
   async function chat({ messages, model = "meterless/auto", maxTokens }: { messages: ChatMessage[]; model?: string; maxTokens?: number }) {
-    let res: Response;
-    try {
-      res = await fetch(`${base}/chat/completions`, {
-        method: "POST",
-        headers: { ...headers, "meterless-scope": "user", "Content-Type": "application/json" },
-        body: JSON.stringify({ model, messages, ...(maxTokens ? { max_tokens: maxTokens } : {}) }),
-        signal: AbortSignal.timeout(TIMEOUT_MS),
-      });
-    } catch (err) {
-      throw new MeterlessError(`Cannot reach Meterless Runtime at ${base}: ${(err as Error).message}`);
+    for (let attempt = 0; ; attempt++) {
+      let res: Response;
+      try {
+        res = await fetch(`${base}/chat/completions`, {
+          method: "POST",
+          headers: { ...headers, "meterless-scope": "user", "Content-Type": "application/json" },
+          body: JSON.stringify({ model, messages, ...(maxTokens ? { max_tokens: maxTokens } : {}) }),
+          signal: AbortSignal.timeout(TIMEOUT_MS),
+        });
+      } catch (err) {
+        throw new MeterlessError(`Cannot reach Meterless Runtime at ${base}: ${(err as Error).message}`);
+      }
+      const text = await res.text();
+      if (res.ok) {
+        const out = JSON.parse(text);
+        return { text: String(out?.choices?.[0]?.message?.content ?? ""), model: String(out?.model ?? model) };
+      }
+      if (isRateLimited(res.status, text) && attempt < RETRY_DELAYS_MS.length) {
+        await sleep(RETRY_DELAYS_MS[attempt]);
+        continue;
+      }
+      throw new MeterlessError(`HTTP ${res.status}: ${text.slice(0, 500)}`);
     }
-    const text = await res.text();
-    if (!res.ok) throw new MeterlessError(`HTTP ${res.status}: ${text.slice(0, 500)}`);
-    const out = JSON.parse(text);
-    return { text: String(out?.choices?.[0]?.message?.content ?? ""), model: String(out?.model ?? model) };
   }
 
   return { status, chat, baseUrl: base };

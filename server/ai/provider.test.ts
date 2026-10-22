@@ -50,6 +50,27 @@ describe("meterless provider", () => {
     expect(JSON.parse(init.body as string)).toMatchObject({ model: "meterless/auto", messages: [{ role: "user", content: "hello" }] });
   });
 
+  it("retries a rate-limited chat with backoff, then succeeds", async () => {
+    const replies = [
+      json(502, { error: { meterless_detail: 'nvidia_429: {"status":429}' } }),
+      json(429, { error: "slow down" }),
+      json(200, { model: "nvidia/nemotron", choices: [{ message: { content: "ok" } }] }),
+    ];
+    const fetch = vi.fn(async () => replies.shift()!);
+    const sleep = vi.fn(async (_ms: number) => {});
+    const out = await createMeterless({ ...base, fetch, sleep }).chat({ messages: [{ role: "user", content: "x" }] });
+    expect(out.text).toBe("ok");
+    expect(fetch).toHaveBeenCalledTimes(3);
+    expect(sleep.mock.calls.map((c) => c[0])).toEqual([2000, 4000]);
+  });
+
+  it("gives up after the last rate-limited attempt", async () => {
+    const fetch = vi.fn(async () => json(429, { error: "slow down" }));
+    const ai = createMeterless({ ...base, fetch, sleep: async () => {} });
+    await expect(ai.chat({ messages: [{ role: "user", content: "x" }] })).rejects.toThrow(/HTTP 429/);
+    expect(fetch).toHaveBeenCalledTimes(6);
+  });
+
   it("names the runtime error on a failed chat", async () => {
     const fetch = vi.fn(async () => json(503, { error: "no lane" }));
     await expect(createMeterless({ ...base, fetch }).chat({ messages: [{ role: "user", content: "x" }] })).rejects.toThrow(/HTTP 503.*no lane/);
