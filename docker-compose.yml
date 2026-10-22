@@ -1,0 +1,19 @@
+# The demo shop's operational database (orders, refunds, tool calls, policy versions).
+# Zetaris reaches it from its own containers through host.docker.internal.
+services:
+  shop-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: shop
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: ${SHOP_DB_PASSWORD:?set SHOP_DB_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:${SHOP_DB_PORT:-55432}:5432"
+    volumes:
+      - shop-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shop -d shop"]
+      interval: 5s
+      retries: 20
+volumes:
+  shop-data:
