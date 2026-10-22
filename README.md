@@ -15,7 +15,7 @@ npm install
 npm run setup          # vendors the Meterless World Model and H-MEM engines into vendor/
 cp .env.example .env   # then fill in the Zetaris and Nightshift values
 npm test
-npm run dev            # API on http://127.0.0.1:8787
+npm run dev            # API on http://127.0.0.1:8799
 npm run dev:web        # UI on http://127.0.0.1:5178
 ```
 
