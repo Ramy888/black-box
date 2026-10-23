@@ -15,5 +15,7 @@ export async function loadEngine(name: EngineName): Promise<{ mod: Record<string
   if (!fs.existsSync(entry)) {
     throw new Error(`Meterless engine "${name}" not found at vendor/${name}. Run: npm run setup`);
   }
-  return { mod: await import(pathToFileURL(entry).href), source: `vendor/${name}` };
+  // A plain path on POSIX: Vite (vitest) cannot load a file:// URL whose path has spaces.
+  const spec = process.platform === "win32" ? pathToFileURL(entry).href : entry;
+  return { mod: await import(spec), source: `vendor/${name}` };
 }

@@ -21,3 +21,25 @@ body {
 }
 .wrap { max-width: 1320px; margin: 0 auto; padding: 24px 16px 64px; }
 .muted { color: var(--muted); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 13px; }
+.error { color: var(--refuted); }
+.masthead { margin-bottom: 24px; }
+.masthead p { margin: 8px 0 0; }
+.panel { background: var(--surface); border: 1.5px solid var(--ink); border-radius: 2px; padding: 14px; }
+.panel > header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.strip { display: block; width: 100%; height: 120px; background: var(--instrument); border-radius: 2px; }
+/* The strip is an instrument: dark in both themes, so its marks use fixed on-dark colours. */
+.tick { stroke-width: 3; vector-effect: non-scaling-stroke; stroke: #6B757A; }
+.tick.policy { stroke: #E3E6E2; }
+.tick.ticket { stroke: #9AA3A8; stroke-dasharray: 4 3; }
+.tick.bad { stroke: #FF5C7A; }
+.playhead { stroke: var(--recorder); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.scrub { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+.scrub input { flex: 1; min-width: 0; accent-color: var(--ink); }
+button.primary { font: 700 14px var(--body); background: var(--ink); color: var(--surface); border: 0; border-radius: 2px; padding: 8px 16px; cursor: pointer; }
+button.primary:active { transform: scale(0.97); transition: transform 80ms; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--recorder); outline-offset: 2px; }
+.readout { margin: 0; padding: 10px 12px; border: 1.5px solid var(--rule); border-radius: 2px; min-height: 96px; }
+.readout dd { margin: 4px 0 0; }
+.readout.bad { border-color: var(--refuted); }
+.count { color: var(--refuted); font-weight: 700; }

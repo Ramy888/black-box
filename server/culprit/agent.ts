@@ -32,9 +32,12 @@ export function parseDecision(text: string): { decision: "approve" | "deny"; rea
 export async function runRefundAgent(opts: { db: pg.Pool; ai: Chat; runId: string; now: Date; concurrency?: number; onTrace?: (t: Trace) => void }) {
   const { db, ai, runId, now } = opts;
   const traces: Trace[] = [];
+  // Stamps run on incident time (now + real elapsed), so the record lines up with the tickets that followed.
+  const runStart = Date.now();
+  const clock = () => new Date(now.getTime() + Date.now() - runStart);
   const logTool = (requestId: string, tool: string, args: unknown, result: unknown) =>
     db.query("INSERT INTO tool_calls (run_id, request_id, ts, tool, args, result) VALUES ($1,$2,$3,$4,$5,$6)",
-      [runId, requestId, new Date(), tool, JSON.stringify(args), JSON.stringify(result)]);
+      [runId, requestId, clock(), tool, JSON.stringify(args), JSON.stringify(result)]);
 
   const { rows: queue } = await db.query(
     "SELECT r.id, r.order_id, r.reason FROM refund_requests r LEFT JOIN refunds f ON f.request_id = r.id WHERE f.id IS NULL ORDER BY r.id");
@@ -56,13 +59,13 @@ export async function runRefundAgent(opts: { db: pg.Pool; ai: Chat; runId: strin
     });
     const { decision, reason } = parseDecision(reply.text);
     if (decision === "approve") {
-      const refund = { id: `RF-${req.id.slice(3)}`, request_id: req.id, order_id: order.id, amount_egp: lookup.amount_egp, issued_at: new Date(), run_id: runId };
+      const refund = { id: `RF-${req.id.slice(3)}`, request_id: req.id, order_id: order.id, amount_egp: lookup.amount_egp, issued_at: clock(), run_id: runId };
       await db.query("INSERT INTO refunds (id, request_id, order_id, amount_egp, issued_at, run_id) VALUES ($1,$2,$3,$4,$5,$6)",
         [refund.id, refund.request_id, refund.order_id, refund.amount_egp, refund.issued_at, refund.run_id]);
       await logTool(req.id, "issue_refund", { order_id: order.id, amount_egp: lookup.amount_egp }, { refund_id: refund.id, status: "paid" });
     }
     const trace: Trace = {
-      run_id: runId, request_id: req.id, ts: new Date().toISOString(), agent: "refund-agent",
+      run_id: runId, request_id: req.id, ts: clock().toISOString(), agent: "refund-agent",
       model: "meterless/fast", routed_model: reply.model, reasoning: "off", policy_in_prompt: STALE_POLICY,
       days_since_delivery: days, decision, reason, latency_ms: Date.now() - started,
     };
