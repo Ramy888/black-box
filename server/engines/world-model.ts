@@ -10,7 +10,7 @@ type Cell = string | number | null;
 export interface FlightRows {
   policies: { version: Cell; max_return_days: Cell; valid_from: Cell; note: Cell }[];
   tickets: { ticket_id: Cell; opened_at: Cell; team: Cell; subject: Cell }[];
-  decisions: { request_id: Cell; ts: Cell; decision: Cell; days_since_delivery: Cell; routed_model: Cell; reason: Cell; refund_id: Cell; amount_egp: Cell }[];
+  decisions: { request_id: Cell; ts: Cell; decision: Cell; days_since_delivery: Cell; routed_model: Cell; reason: Cell; refund_id: Cell; amount_egp: Cell; from_cache: Cell }[];
 }
 
 export interface FlightEvent {
@@ -54,7 +54,7 @@ export async function replayFlight(rows: FlightRows, asOf: Date) {
         type: "request", externalKey: shop(d.request_id),
         attrs: {
           decision: d.decision, days_since_delivery: Number(d.days_since_delivery), reason: d.reason,
-          routed_model: d.routed_model, refund_id: d.refund_id, amount_egp: d.amount_egp == null ? null : Number(d.amount_egp),
+          routed_model: d.routed_model, from_cache: String(d.from_cache) === "true", refund_id: d.refund_id, amount_egp: d.amount_egp == null ? null : Number(d.amount_egp),
         },
         source: { kind: "agent", by: "refund-agent", at, runId: RUN_ID },
       }),
@@ -83,7 +83,7 @@ function toFlightEvent(seq: number, entity: any, limit: number): FlightEvent {
   return {
     ...base, kind: "decision",
     label: paid ? `Refund ${a.refund_id ?? ""} paid, ${a.amount_egp ?? "?"} EGP` : "Refund denied",
-    detail: `${a.days_since_delivery} days after delivery · ${a.reason} · ${a.routed_model}`,
+    detail: `${a.days_since_delivery} days after delivery · ${a.reason} · ${a.routed_model}${a.from_cache ? " (Nightshift cache)" : ""}`,
     bad: paid && a.days_since_delivery > limit,
   };
 }
@@ -95,8 +95,8 @@ export async function loadFlightRows(zx: ReturnType<typeof createZetaris>): Prom
   const [policies, tickets, decisions] = await Promise.all([
     pick(["version", "max_return_days", "valid_from", "note"], "SELECT version, max_return_days, valid_from, note FROM SHOP_PG.policy_versions"),
     pick(["ticket_id", "opened_at", "team", "subject"], "SELECT ticket_id, opened_at, team, subject FROM BB_FILES.ops_tickets"),
-    pick(["request_id", "ts", "decision", "days_since_delivery", "routed_model", "reason", "refund_id", "amount_egp"],
-      `SELECT t.request_id, t.ts, t.decision, t.days_since_delivery, t.routed_model, t.reason, f.id, f.amount_egp
+    pick(["request_id", "ts", "decision", "days_since_delivery", "routed_model", "reason", "refund_id", "amount_egp", "from_cache"],
+      `SELECT t.request_id, t.ts, t.decision, t.days_since_delivery, t.routed_model, t.reason, f.id, f.amount_egp, t.from_cache
        FROM BB_FILES.agent_traces t LEFT JOIN SHOP_PG.refunds f ON f.request_id = t.request_id`),
   ]);
   return { policies, tickets, decisions };

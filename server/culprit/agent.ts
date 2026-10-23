@@ -3,7 +3,7 @@
 // reasoning. It really issues refunds and records every tool call and decision.
 
 import type pg from "pg";
-import type { ChatMessage } from "../ai/provider.ts";
+import type { ChatMessage, Receipt } from "../ai/provider.ts";
 
 // The bug: copied into the prompt when the agent shipped, never updated after FIN-212.
 export const STALE_POLICY = "Refunds are allowed within 30 days of delivery.";
@@ -12,10 +12,12 @@ export interface Trace {
   run_id: string; request_id: string; ts: string; agent: "refund-agent";
   model: string; routed_model: string; reasoning: "off"; policy_in_prompt: string;
   days_since_delivery: number; decision: "approve" | "deny"; reason: string; latency_ms: number;
+  /** Nightshift served this decision from its exact-match cache (an earlier live Nemotron answer). */
+  from_cache: boolean;
 }
 
 export interface Chat {
-  chat(o: { messages: ChatMessage[]; model?: string; maxTokens?: number }): Promise<{ text: string; model: string }>;
+  chat(o: { messages: ChatMessage[]; model?: string; maxTokens?: number }): Promise<{ text: string; model: string; receipt?: Receipt }>;
 }
 
 /** Pulls the first JSON object out of a model reply; anything unparseable is a deny. */
@@ -67,7 +69,7 @@ export async function runRefundAgent(opts: { db: pg.Pool; ai: Chat; runId: strin
     const trace: Trace = {
       run_id: runId, request_id: req.id, ts: clock().toISOString(), agent: "refund-agent",
       model: "meterless/fast", routed_model: reply.model, reasoning: "off", policy_in_prompt: STALE_POLICY,
-      days_since_delivery: days, decision, reason, latency_ms: Date.now() - started,
+      days_since_delivery: days, decision, reason, latency_ms: Date.now() - started, from_cache: reply.receipt?.from_cache ?? false,
     };
     traces.push(trace);
     opts.onTrace?.(trace);

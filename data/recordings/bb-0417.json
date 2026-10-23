@@ -1,0 +1,144 @@
+{
+ "sql:f46372686bbcb9ff": {
+  "ok": true,
+  "value": {
+   "rows": [
+    [
+     "OPS-881",
+     "Finance",
+     "Refund payouts spiked today"
+    ],
+    [
+     "OPS-882",
+     "Support",
+     "Payments provider returning duplicate IDs?"
+    ],
+    [
+     "OPS-883",
+     "Finance",
+     "Return window change FIN-212 live since 18 Oct"
+    ]
+   ]
+  },
+  "ms": 10376
+ },
+ "sql:733efc410919198e": {
+  "ok": true,
+  "value": {
+   "rows": [
+    [
+     "1",
+     "30",
+     "2026-01-01 00:00:00.0",
+     "2026-10-18 00:00:00.0",
+     "Refunds within 30 days of delivery"
+    ],
+    [
+     "2",
+     "14",
+     "2026-10-18 00:00:00.0",
+     null,
+     "Refunds within 14 days of delivery (finance change FIN-212)"
+    ]
+   ]
+  },
+  "ms": 10397
+ },
+ "sql:30047622894a5d6c": {
+  "ok": true,
+  "value": {
+   "rows": [
+    [
+     "Refunds are allowed within 30 days of delivery.",
+     "nvidia/nemotron-3.5-lightning-30b-a3b",
+     "off",
+     "132"
+    ]
+   ]
+  },
+  "ms": 10846
+ },
+ "sql:cfb4a797795fda37": {
+  "ok": true,
+  "value": {
+   "rows": [
+    [
+     "Within 30-day refund window",
+     "30"
+    ],
+    [
+     "Within 30-day return window",
+     "3"
+    ],
+    [
+     "Delivered 21 days ago, within 30-day refund window",
+     "1"
+    ],
+    [
+     "Within 30-day window",
+     "1"
+    ],
+    [
+     "Eligible within 30-day window, not as described",
+     "1"
+    ],
+    [
+     "Item damaged within 30-day refund window",
+     "1"
+    ],
+    [
+     "Delivery within 30-day refund window",
+     "1"
+    ],
+    [
+     "Within 30-day return window for wrong size",
+     "1"
+    ],
+    [
+     "Eligible within 30-day refund window",
+     "1"
+    ]
+   ]
+  },
+  "ms": 35546
+ },
+ "sql:4286da6f13774439": {
+  "ok": true,
+  "value": {
+   "rows": [
+    [
+     "40",
+     "69422.000000000000000000",
+     "15",
+     "29"
+    ]
+   ]
+  },
+  "ms": 36007
+ },
+ "chat:759aa44d98d3df51": {
+  "ok": false,
+  "error": {
+   "name": "BudgetExhausted",
+   "message": "stream error: {\"message\":\"/nemotron-3.5-lightning-30b-a3b_empty_response\",\"type\":\"api_error\",\"code\":\"provider_error\",\"param\":null,\"meterless_detail\":\"nvidia/nemotron-3.5-lightning-30b-a3b_empty_response\"}"
+  },
+  "ms": 23148
+ },
+ "chat:88796b416dd64bff": {
+  "ok": true,
+  "value": {
+   "text": "ROOT: The refund agent applied Policy v1's 30-day refund window despite Policy v2's live 14-day window since 2026-10-18. [A1, B2]  \nFINDING: 40 refunds totalling 69,422 EGP were paid for orders delivered 15 to 29 days before the incident, past the live 14-day return window. [A2]  \nFINDING: The agent's own refund reasons consistently reference 'Within 30-day refund window', confirming operation under the expired policy. [B2]",
+   "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+   "receipt": {
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "from_cache": false,
+    "cache_status": null,
+    "tokens_out": null,
+    "tokens_per_s": null,
+    "cost_usd": null,
+    "ms": 39097
+   }
+  },
+  "ms": 39098
+ }
+}

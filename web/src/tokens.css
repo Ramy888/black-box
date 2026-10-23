@@ -45,3 +45,34 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--recorder); 
 .readout dd { margin: 4px 0 0; }
 .readout.bad { border-color: var(--refuted); }
 .count { color: var(--refuted); font-weight: 700; }
+.room { margin-bottom: 24px; }
+.room-head { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+button.primary:disabled { opacity: 0.6; cursor: progress; }
+.mode { font: 700 13px var(--mono); border: 1.5px solid var(--ink); border-radius: 2px; padding: 4px 8px; background: var(--surface); }
+.mode.replay { border-style: dashed; }
+/* ≥1080: recorder 300 · ledger fluid · budget 260. 720-1080: ledger first, then agents and budget side by side. */
+.room-grid { display: grid; gap: 16px; grid-template-columns: 300px minmax(0, 1fr) 260px; grid-template-areas: "agents ledger budget"; align-items: start; }
+.room-grid .agents { grid-area: agents; } .room-grid .ledger { grid-area: ledger; } .room-grid .budget { grid-area: budget; }
+@media (max-width: 1079px) { .room-grid { grid-template-columns: 1fr 1fr; grid-template-areas: "ledger ledger" "agents budget"; } }
+@media (max-width: 719px) { .room-grid { grid-template-columns: 1fr; grid-template-areas: "ledger" "agents" "budget"; } .query { display: none; } }
+.agents ol, .calls { list-style: none; margin: 0; padding: 0; }
+.agent { display: grid; grid-template-columns: 64px 1fr; gap: 8px; padding: 9px 0; border-top: 1px solid var(--rule); }
+.agent .callsign { font-weight: 700; }
+.agent.idle { color: var(--muted); }
+.agent.failed b { color: var(--refuted); }
+.tags { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; align-items: start; }
+.tag { background: var(--tag); color: #15191C; padding: 10px 12px 10px 18px; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
+.tag p { margin: 6px 0; font-size: 14px; }
+.tag .cell { display: inline-block; margin-right: 8px; font-weight: 700; }
+.tag .muted { color: #3A4247; font-size: 12px; }
+.ledger table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.ledger th { text-align: left; font-weight: 700; border-bottom: 1.5px solid var(--ink); padding: 6px 8px; }
+.ledger td { border-bottom: 1px solid var(--rule); padding: 9px 8px; vertical-align: top; }
+.ledger details.query { margin-top: 6px; }
+.ledger details.query summary { cursor: pointer; font-size: 12px; }
+.ledger details.query pre { white-space: pre-wrap; font-size: 11px; margin: 6px 0 0; padding: 8px; background: var(--ground); border-radius: 2px; color: var(--muted); }
+.meter { height: 12px; border: 1.5px solid var(--ink); border-radius: 2px; background: var(--surface); position: relative; }
+.meter .fill { height: 100%; background: var(--recorder); border-right: 2px solid var(--ink); transition: width 250ms ease-out; }
+.budget p { margin: 8px 0 0; }
+.calls { margin-top: 12px; font-size: 12px; }
+.calls li { padding: 4px 0; border-top: 1px solid var(--rule); }

@@ -15,7 +15,9 @@
     "check:nightshift": "tsx scripts/check-nightshift.ts",
     "scenario:load": "tsx scenario/load.ts",
     "culprit": "tsx scenario/run-culprit.ts",
-    "reset": "tsx scenario/load.ts"
+    "reset": "tsx scenario/load.ts",
+    "dev:replay": "BLACKBOX_REPLAY=1 tsx watch server/index.ts",
+    "demo:check": "tsx scripts/demo-check.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",

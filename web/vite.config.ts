@@ -3,5 +3,5 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  server: { port: 5178, proxy: { "/api": "http://127.0.0.1:8799" } },
+  server: { port: 5178, proxy: { "/api": `http://127.0.0.1:${process.env.PORT ?? 8799}` } },
 });

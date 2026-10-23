@@ -11,9 +11,9 @@ const rows: FlightRows = {
   ],
   tickets: [{ ticket_id: "OPS-882", opened_at: "2026-10-21 16:00:00", team: "Support", subject: "Duplicate IDs?" }],
   decisions: [
-    { request_id: "REQ-0003", ts: "2026-10-21T10:00:03.000Z", decision: "deny", days_since_delivery: "35", routed_model: "nvidia/n", reason: "too old", refund_id: null, amount_egp: null },
-    { request_id: "REQ-0001", ts: "2026-10-21T10:00:01.000Z", decision: "approve", days_since_delivery: "9", routed_model: "nvidia/n", reason: "ok", refund_id: "RF-0001", amount_egp: "500.00" },
-    { request_id: "REQ-0002", ts: "2026-10-21T10:00:02.000Z", decision: "approve", days_since_delivery: "20", routed_model: "nvidia/n", reason: "within 30", refund_id: "RF-0002", amount_egp: "1200.00" },
+    { request_id: "REQ-0003", ts: "2026-10-21T10:00:03.000Z", decision: "deny", days_since_delivery: "35", routed_model: "nvidia/n", reason: "too old", refund_id: null, amount_egp: null, from_cache: "false" },
+    { request_id: "REQ-0001", ts: "2026-10-21T10:00:01.000Z", decision: "approve", days_since_delivery: "9", routed_model: "nvidia/n", reason: "ok", refund_id: "RF-0001", amount_egp: "500.00", from_cache: "true" },
+    { request_id: "REQ-0002", ts: "2026-10-21T10:00:02.000Z", decision: "approve", days_since_delivery: "20", routed_model: "nvidia/n", reason: "within 30", refund_id: "RF-0002", amount_egp: "1200.00", from_cache: "false" },
   ],
 };
 
