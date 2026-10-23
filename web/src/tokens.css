@@ -2,7 +2,9 @@
 :root {
   --ground: #DCDFE0; --surface: #F3F4F3; --ink: #15191C; --muted: #5B6368;
   --grid: #C3C8CA; --rule: #B4BABD; --recorder: #FF4F00; --on-recorder: #15191C;
-  --instrument: #101315; --tag: #F2C230; --refuted: #B3261E; --survives: #1E6B57;
+  --instrument: #101315; --tag: #F2C230;
+  /* On the always-dark recorder strip, error red must stay clear of recorder orange on compressed video. */
+  --refuted-on-instrument: #FF5C7A; --refuted: #B3261E; --survives: #1E6B57;
   --display: "Archivo", sans-serif; --body: "Atkinson Hyperlegible Next", sans-serif; --mono: "B612 Mono", monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
@@ -32,7 +34,7 @@ body {
 .tick { stroke-width: 3; vector-effect: non-scaling-stroke; stroke: #6B757A; }
 .tick.policy { stroke: #E3E6E2; }
 .tick.ticket { stroke: #9AA3A8; stroke-dasharray: 4 3; }
-.tick.bad { stroke: #FF5C7A; }
+.tick.bad { stroke: var(--refuted-on-instrument); }
 .playhead { stroke: var(--recorder); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .scrub { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
 .scrub input { flex: 1; min-width: 0; accent-color: var(--ink); }
