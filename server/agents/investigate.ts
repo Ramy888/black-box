@@ -2,11 +2,13 @@
 // claim lands in the Evidence Ledger with the Zetaris queries of the cells it cites.
 
 import { runRootCause, type Chat, type ModelCall } from "./root-cause.ts";
+import { runSkeptic, type Verdict } from "./skeptic.ts";
 import { reportedHypotheses, runWitness, WITNESSES, type Evidence, type Query } from "./witness.ts";
 
 export interface LedgerRow {
   id: string; kind: "root-cause" | "finding" | "reported"; by: string; claim: string;
-  cells: string[]; sql: string[]; sources: string[]; rows: number; status: "open";
+  cells: string[]; sql: string[]; sources: string[]; rows: number;
+  status: "open" | "survives" | "struck"; verdict?: Verdict;
 }
 
 export type InvestigationEvent =
@@ -16,7 +18,8 @@ export type InvestigationEvent =
   | { type: "handoff"; from: string; to: string; note: string }
   | { type: "model"; call: ModelCall }
   | { type: "ledger"; row: LedgerRow }
-  | { type: "done"; claims: number; ms: number }
+  | { type: "verdict"; verdict: Verdict }
+  | { type: "done"; claims: number; survives: number; struck: number; ms: number }
   | { type: "error"; message: string };
 
 export async function investigate({ query, ai, emit }: { query: Query; ai: Chat; emit: (e: InvestigationEvent) => void }) {
@@ -30,7 +33,7 @@ export async function investigate({ query, ai, emit }: { query: Query; ai: Chat;
       sql: cited.map((e) => e.sql), sources: [...new Set(cited.map((e) => e.source))], rows: cited.reduce((n, e) => n + e.rows.length, 0),
     };
     ledger.push(row);
-    emit({ type: "ledger", row });
+    emit({ type: "ledger", row: { ...row } });
   };
 
   await Promise.all(WITNESSES.map(async (w) => {
@@ -57,6 +60,21 @@ export async function investigate({ query, ai, emit }: { query: Query; ai: Chat;
     emit({ type: "agent", callsign: "RCA", state: "failed", note: (err as Error).message.slice(0, 200) });
     throw err;
   }
-  emit({ type: "done", claims: ledger.length, ms: Date.now() - started });
+  emit({ type: "handoff", from: "RCA", to: "SKP", note: ledger.map((r) => r.id).join(", ") });
+  emit({ type: "agent", callsign: "SKP", state: "working", note: "re-running every cited query, then probing" });
+  try {
+    await runSkeptic({
+      query, ai, evidence, claims: ledger,
+      onEvidence: (e) => { evidence.push(e); emit({ type: "evidence", evidence: e }); },
+      onCall: (call) => emit({ type: "model", call }),
+      onVerdict: (v) => { Object.assign(ledger.find((r) => r.id === v.id)!, { status: v.status, verdict: v }); emit({ type: "verdict", verdict: v }); },
+    });
+  } catch (err) {
+    emit({ type: "agent", callsign: "SKP", state: "failed", note: (err as Error).message.slice(0, 200) });
+    throw err;
+  }
+  const struck = ledger.filter((r) => r.status === "struck").length;
+  emit({ type: "agent", callsign: "SKP", state: "done", note: `${struck} struck, ${ledger.length - struck} survive` });
+  emit({ type: "done", claims: ledger.length, survives: ledger.length - struck, struck, ms: Date.now() - started });
   return { evidence, ledger };
 }

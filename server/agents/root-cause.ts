@@ -14,6 +14,8 @@ export interface Claim { kind: "root-cause" | "finding"; claim: string; cells: s
 export interface ModelCall {
   callsign: string; budget: number; stream: boolean; outcome: "ok" | "exhausted" | "invalid";
   receipt?: ChatResult["receipt"]; note?: string;
+  /** Set when this round started higher than the bottom rung, and why (e.g. "SKP struck L1"). */
+  raised_by?: string;
 }
 
 // Every rung streams: a non-streamed call that reasons past ~45 s is cut off by Nightshift's upstream timeout.
@@ -25,7 +27,8 @@ Witness findings are tagged with grid cells. Reply with exactly three lines and 
 ROOT: <one sentence naming the root cause> [cells]
 FINDING: <one sentence> [cells]
 FINDING: <one sentence> [cells]
-[cells] lists the grid cells whose findings prove that line, for example [A1, B1].`;
+[cells] lists every grid cell whose finding supports that line, for example [A1, B1, B2].
+State only what the findings show: no "all", "every" or "exclusively" unless a finding says so.`;
 
 /** A reply the agent cannot use. Like running out of budget, it climbs the ladder for a fresh answer. */
 export class InvalidReply extends Error {}
@@ -34,9 +37,14 @@ export class InvalidReply extends Error {}
  * Calls the model up the budget ladder until `parse` accepts a reply. Every attempt is
  * reported, so the budget meter shows what was spent and why it rose.
  */
-export async function askWithLadder<T>(ai: Chat, callsign: string, messages: ChatMessage[], parse: (text: string) => T, onCall: (c: ModelCall) => void, ladder = LADDER): Promise<T> {
-  for (const [i, rung] of ladder.entries()) {
-    const call = { callsign, budget: rung.maxTokens, stream: rung.stream };
+export async function askWithLadder<T>(
+  ai: Chat, callsign: string, messages: ChatMessage[], parse: (text: string) => T, onCall: (c: ModelCall) => void,
+  { ladder = LADDER, start = 0, raisedBy }: { ladder?: typeof LADDER; start?: number; raisedBy?: string } = {},
+): Promise<T> {
+  const first = Math.min(start, ladder.length - 1);
+  for (let i = first; i < ladder.length; i++) {
+    const rung = ladder[i];
+    const call = { callsign, budget: rung.maxTokens, stream: rung.stream, ...(i === first && first > 0 && raisedBy ? { raised_by: raisedBy } : {}) };
     try {
       const out = await ai.chat({ model: "meterless/fast", messages, ...rung });
       const value = parse(out.text);

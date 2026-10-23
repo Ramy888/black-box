@@ -20,7 +20,7 @@ const LIVE_DAYS = "(SELECT max_return_days FROM SHOP_PG.policy_versions WHERE va
 const num = (v: unknown) => Number(v).toLocaleString("en-US", { maximumFractionDigits: 0 });
 const day = (v: unknown) => String(v).slice(0, 10);
 
-interface Survey { cell: string; title: string; columns: string[]; sql: string; report: (rows: Row[]) => string }
+export interface Survey { cell: string; title: string; columns: string[]; sql: string; report: (rows: Row[]) => string }
 export interface Witness { callsign: string; source: string; surveys: Survey[] }
 
 export const WITNESSES: Witness[] = [

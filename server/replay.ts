@@ -11,10 +11,22 @@ import type { Query } from "./agents/witness.ts";
 
 type Outcome = { ok: true; value: unknown; ms: number } | { ok: false; error: { name: string; message: string }; ms: number };
 
-const keyOf = (kind: string, input: unknown) => `${kind}:${crypto.createHash("sha256").update(JSON.stringify(input)).digest("hex").slice(0, 16)}`;
+const hash = (kind: string, input: unknown) => `${kind}:${crypto.createHash("sha256").update(JSON.stringify(input)).digest("hex").slice(0, 16)}`;
+
+/** Keys count repeats, so a query re-run by the Skeptic replays its own answer, not the witness's. */
+function keyer() {
+  const seen = new Map<string, number>();
+  return (kind: string, input: unknown) => {
+    const base = hash(kind, input);
+    const n = (seen.get(base) ?? 0) + 1;
+    seen.set(base, n);
+    return n === 1 ? base : `${base}#${n}`;
+  };
+}
 
 export function recording(file: string) {
   const tape: Record<string, Outcome> = {};
+  const keyOf = keyer();
   const rec = async <T>(key: string, run: () => Promise<T>): Promise<T> => {
     const started = Date.now();
     try {
@@ -40,6 +52,7 @@ export function recording(file: string) {
 export function replaying(file: string, pace = 0.25) {
   if (!fs.existsSync(file)) throw new Error(`No recording at ${file}. Run one live investigation first.`);
   const tape: Record<string, Outcome> = JSON.parse(fs.readFileSync(file, "utf8"));
+  const keyOf = keyer();
   const play = async <T>(key: string, what: string): Promise<T> => {
     const o = tape[key];
     if (!o) throw new Error(`Replay has no recording for this ${what}; the recording is from a different run.`);

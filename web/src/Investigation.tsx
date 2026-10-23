@@ -5,8 +5,8 @@ import { useRef, useState } from "react";
 import type { InvestigationEvent, LedgerRow } from "../../server/agents/investigate.ts";
 import type { ModelCall } from "../../server/agents/root-cause.ts";
 import type { Evidence } from "../../server/agents/witness.ts";
+import { Recorder, RECORDER_CALLSIGNS as CALLSIGNS } from "./Recorder.tsx";
 
-const CALLSIGNS = ["WIT·1", "WIT·2", "WIT·3", "RCA"];
 const MAX_BUDGET = 8192;
 type AgentState = { state: "idle" | "working" | "done" | "failed"; note: string };
 
@@ -18,22 +18,25 @@ export function Investigation() {
   const [ledger, setLedger] = useState<LedgerRow[]>([]);
   const [calls, setCalls] = useState<ModelCall[]>([]);
   const [status, setStatus] = useState<string>();
+  const [events, setEvents] = useState<InvestigationEvent[]>([]);
   const source = useRef<EventSource>();
 
   function start() {
     source.current?.close();
-    setAgents({}); setEvidence([]); setLedger([]); setCalls([]); setStatus(undefined); setRunning(true);
+    setAgents({}); setEvidence([]); setLedger([]); setCalls([]); setEvents([]); setStatus(undefined); setRunning(true);
     const es = new EventSource("/api/investigate");
     source.current = es;
     const stop = (msg: string) => { setStatus(msg); setRunning(false); es.close(); };
     es.onmessage = (m) => {
       const e = JSON.parse(m.data) as InvestigationEvent;
+      setEvents((v) => [...v, e]);
       if (e.type === "mode") setMode(e.mode);
       if (e.type === "agent") setAgents((a) => ({ ...a, [e.callsign]: { state: e.state, note: e.note } }));
       if (e.type === "evidence") setEvidence((v) => [...v, e.evidence].sort((a, b) => a.cell.localeCompare(b.cell)));
       if (e.type === "ledger") setLedger((v) => [...v, e.row]);
       if (e.type === "model") setCalls((v) => [...v, e.call]);
-      if (e.type === "done") stop(`${e.claims} claims in ${Math.round(e.ms / 1000)} s`);
+      if (e.type === "verdict") setLedger((v) => v.map((r) => (r.id === e.verdict.id ? { ...r, status: e.verdict.status, verdict: e.verdict } : r)));
+      if (e.type === "done") stop(`${e.survives} claims survive, ${e.struck} struck by SKP · ${Math.round(e.ms / 1000)} s`);
       if (e.type === "error") stop(`Investigation failed: ${e.message}`);
     };
     es.onerror = () => stop("Lost the connection to the investigation stream.");
@@ -55,7 +58,7 @@ export function Investigation() {
           <header><b>Agents</b><span className="mono muted">callsign · state</span></header>
           <ol>
             {CALLSIGNS.map((c) => {
-              const a = agents[c] ?? { state: "idle", note: c === "RCA" ? "waits for the witnesses" : "waits for Investigate" };
+              const a = agents[c] ?? { state: "idle", note: c === "RCA" ? "waits for the witnesses" : c === "SKP" ? "waits for the claims" : "waits for Investigate" };
               return (
                 <li key={c} className={`agent ${a.state}`}>
                   <span className="mono callsign">{c}</span>
@@ -64,6 +67,7 @@ export function Investigation() {
               );
             })}
           </ol>
+          <Recorder events={events} />
         </section>
 
         <section className="panel ledger">
@@ -73,17 +77,20 @@ export function Investigation() {
               <thead><tr><th>Cell</th><th>Claim</th><th>Rows</th><th>Status</th></tr></thead>
               <tbody>
                 {ledger.map((r) => (
-                  <tr key={r.id}>
+                  <tr key={r.id} className={r.status}>
                     <td className="mono">{r.cells.join(" ")}</td>
                     <td>
-                      <span className="mono muted">{r.id} · {r.by} · {r.kind}</span><br />{r.claim}
+                      <span className="mono muted">{r.id} · {r.by} · {r.kind}</span><br /><span className="claim">{r.claim}</span>
                       <details className="query">
                         <summary className="mono muted">{r.sql.length} Zetaris {r.sql.length === 1 ? "query" : "queries"} · {r.sources.join(" + ")}</summary>
                         {r.cells.map((c) => <pre key={c} className="mono"><b>{c}</b> {cellOf(c)?.sql}</pre>)}
                       </details>
                     </td>
                     <td className="mono">{r.rows}</td>
-                    <td>{r.kind === "reported" ? "Open, unverified" : "Open"}</td>
+                    <td className="status">
+                      {r.verdict ? <b>{r.verdict.status === "struck" ? "Struck by SKP" : "Survives SKP"}</b> : r.kind === "reported" ? "Open, unverified" : "Open"}
+                      {r.verdict && <span className="muted"><br />{r.verdict.why}{r.verdict.cells.length ? ` [${r.verdict.cells.join(", ")}]` : ""}</span>}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -110,7 +117,7 @@ export function Investigation() {
           <p className="muted">{caption(calls)}</p>
           <ol className="calls mono">
             {calls.map((c, i) => (
-              <li key={i}>{c.callsign} {c.budget.toLocaleString("en-US")} · {c.outcome}{c.receipt ? ` · ${Math.round(c.receipt.ms / 1000)} s${c.receipt.from_cache ? " · cache" : ""}` : ""}</li>
+              <li key={i}>{c.raised_by ? "↑ " : ""}{c.callsign} {c.budget.toLocaleString("en-US")} · {c.outcome}{c.receipt ? ` · ${Math.round(c.receipt.ms / 1000)} s${c.receipt.from_cache ? " · cache" : ""}` : ""}</li>
             ))}
           </ol>
         </section>
@@ -122,8 +129,12 @@ export function Investigation() {
 function caption(calls: ModelCall[]): string {
   const last = calls.at(-1);
   if (!last) return "Nemotron always reasons before it answers; the token budget is the lever.";
+  const n = (v: number) => v.toLocaleString("en-US");
+  if (last.raised_by) return `Raised to ${n(last.budget)}: ${last.raised_by}, so every round after a refutation starts higher.`;
   const prev = calls.at(-2);
-  if (prev && last.budget > prev.budget) return `Raised to ${last.budget.toLocaleString("en-US")}: Nemotron ran out of budget at ${prev.budget.toLocaleString("en-US")} while reasoning.`;
-  if (last.outcome === "invalid") return "Reply was not valid JSON; one repair turn at the same budget.";
-  return last.outcome === "ok" ? `${last.callsign} answered within ${last.budget.toLocaleString("en-US")} tokens.` : `${last.callsign} ran out of budget.`;
+  if (prev && prev.callsign === last.callsign && prev.outcome !== "ok" && last.budget > prev.budget) {
+    return `Raised to ${n(last.budget)}: ${prev.outcome === "exhausted" ? `Nemotron ran out of budget at ${n(prev.budget)} while reasoning` : `the reply at ${n(prev.budget)} was unusable`}.`;
+  }
+  if (last.outcome === "ok") return `${last.callsign} answered within ${n(last.budget)} tokens.`;
+  return last.outcome === "exhausted" ? `${last.callsign} ran out of budget at ${n(last.budget)}.` : `${last.callsign}'s reply at ${n(last.budget)} was unusable.`;
 }

@@ -76,3 +76,18 @@ button.primary:disabled { opacity: 0.6; cursor: progress; }
 .budget p { margin: 8px 0 0; }
 .calls { margin-top: 12px; font-size: 12px; }
 .calls li { padding: 4px 0; border-top: 1px solid var(--rule); }
+.ledger tr.struck .claim { text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: var(--refuted); color: var(--muted); }
+.ledger tr.struck .status b { color: var(--refuted); }
+.ledger tr.survives .status b { color: var(--survives); }
+.ledger td.status { min-width: 140px; font-size: 13px; }
+.recorder { display: block; margin-top: 12px; border-top: 1px solid var(--rule); padding-top: 8px; }
+.rec-label { font: 700 9px var(--mono); fill: var(--ink); }
+.rec-base { stroke: var(--grid); stroke-width: 1; }
+.rec-trace { stroke: var(--ink); stroke-width: 2; }
+.rec-handoff { stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.rec-evidence { fill: var(--tag); stroke: var(--ink); stroke-width: 1; }
+.rec-tick { stroke: var(--ink); stroke-width: 2.5; }
+.rec-tick.exhausted, .rec-tick.invalid { stroke: var(--muted); stroke-dasharray: 2 2; }
+.rec-spike { stroke: var(--refuted); stroke-width: 2; fill: none; }
+.rec-refuted { font: 700 9px var(--mono); fill: var(--refuted); }
+.rec-ok { fill: var(--survives); }

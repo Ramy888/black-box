@@ -26,7 +26,10 @@ app.get("/api/flight", async (c) => {
 app.get("/api/investigate", (c) => streamSSE(c, async (stream) => {
   // Writes are chained so a burst emitted in one tick is flushed before the stream closes.
   let flushed = Promise.resolve();
-  const send = (e: InvestigationEvent) => (flushed = flushed.then(() => stream.writeSSE({ data: JSON.stringify(e) })));
+  const send = (e: InvestigationEvent) => {
+    const data = JSON.stringify(e); // serialised now: later events may update the same objects
+    flushed = flushed.then(() => stream.writeSSE({ data }));
+  };
   const replay = process.env.BLACKBOX_REPLAY === "1";
   try {
     const rec = replay ? undefined : recording(RECORDING);
