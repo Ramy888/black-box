@@ -42,7 +42,7 @@ export function Airlock({ approved }: { approved?: Contract }) {
     <section className="panel airlock">
       <header>
         <b>Airlock</b>
-        <span className="mono muted">{start ? `${start.contract_id} active · live window ${start.live_max_days} days (v${start.live_version})` : "replays the incident with the guardrail active"}</span>
+        <span className="mono muted">{start ? `${start.live ? "LIVE" : "recorded run"} · ${start.contract_id} active · live window ${start.live_max_days} days (v${start.live_version})` : "replays the incident with the guardrail active"}</span>
       </header>
       {!approved && <p className="muted">Sign the guardrail first. Nothing activates without a human signature.</p>}
       {approved && (
@@ -62,7 +62,7 @@ export function Airlock({ approved }: { approved?: Contract }) {
           {last && <text x="192" y="66" textAnchor="middle" className="door-tag">{last.request_id}</text>}
         </svg>
       )}
-      {last && !done && <p className="mono muted">{last.request_id}: agent decided {last.decision} at {last.days_since_delivery} days → {last.blocked ? "gate blocked" : "gate allowed"}</p>}
+      {last && <p className="mono muted">{last.request_id}: refund agent decided {last.decision} at {last.days_since_delivery} days{last.model ? ` (${last.model} via Nightshift${last.from_cache ? ", cache" : ""})` : ""} → {last.blocked ? "gate blocked" : "gate allowed"}</p>}
       {error && <p className="error">Airlock failed: {error}</p>}
       {held && start && (
         <div className="blocked-band" role="status">

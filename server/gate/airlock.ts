@@ -10,8 +10,8 @@ import { activateGate, type Contract } from "./contract.ts";
 export const AIRLOCK_RUN = "airlock-0417";
 
 export type AirlockEvent =
-  | { type: "airlock-start"; contract_id: string; signer: string; signature: string; requests: number; live_max_days: number; live_version: number }
-  | { type: "attempt"; request_id: string; decision: "approve" | "deny"; days_since_delivery: number; from_cache: boolean; blocked: boolean; clause?: string }
+  | { type: "airlock-start"; contract_id: string; signer: string; signature: string; requests: number; live_max_days: number; live_version: number; live?: boolean }
+  | { type: "attempt"; request_id: string; decision: "approve" | "deny"; days_since_delivery: number; from_cache: boolean; blocked: boolean; clause?: string; model?: string }
   | { type: "airlock-done"; attempted: number; blocked: number; payouts: number; ms: number; sealed: true }
   | { type: "airlock-error"; message: string };
 
@@ -34,11 +34,11 @@ export async function runAirlock({ pool, ai, contract, key, emit }: {
        WHERE floor(extract(epoch FROM ($1::timestamptz - o.delivered_at)) / 86400) > $2 ORDER BY f.request_id`,
       [INCIDENT_AT, live.max_return_days]);
     const gate = await activateGate(contract, key, async () => (await livePolicy()).max_return_days);
-    emit({ type: "airlock-start", contract_id: contract.id, signer: contract.approved_by!, signature: contract.signature!, requests: bad.length, live_max_days: live.max_return_days, live_version: live.version });
+    emit({ type: "airlock-start", contract_id: contract.id, signer: contract.approved_by!, signature: contract.signature!, requests: bad.length, live_max_days: live.max_return_days, live_version: live.version, live: true });
 
     const traces = await runRefundAgent({
       db, ai, runId: AIRLOCK_RUN, now: INCIDENT_AT, requestIds: bad.map((r) => r.request_id), gate,
-      onTrace: (t) => emit({ type: "attempt", request_id: t.request_id, decision: t.decision, days_since_delivery: t.days_since_delivery, from_cache: t.from_cache, blocked: Boolean(t.blocked_by), clause: t.blocked_by?.clause }),
+      onTrace: (t) => emit({ type: "attempt", request_id: t.request_id, decision: t.decision, days_since_delivery: t.days_since_delivery, from_cache: t.from_cache, blocked: Boolean(t.blocked_by), clause: t.blocked_by?.clause, model: t.routed_model }),
     });
     const { rows: [paid] } = await db.query("SELECT count(*)::int AS n FROM refunds WHERE run_id = $1", [AIRLOCK_RUN]);
     const done = { type: "airlock-done" as const, attempted: traces.length, blocked: traces.filter((t) => t.blocked_by).length, payouts: paid.n, ms: Date.now() - started, sealed: true as const };

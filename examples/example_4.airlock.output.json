@@ -1,0 +1,15 @@
+{
+  "task": "airlock",
+  "mode": "live",
+  "guardrail": {
+    "id": "GC-0417-1",
+    "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+    "signed_by": "On-call lead",
+    "hmac": "0313ebd3b42eaff2…"
+  },
+  "attempted": 40,
+  "blocked": 40,
+  "payouts_executed": 0,
+  "sealed_transaction": true,
+  "agent_still_decided_approve": 40
+}

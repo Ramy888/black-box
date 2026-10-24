@@ -17,7 +17,8 @@
     "culprit": "tsx scenario/run-culprit.ts",
     "reset": "tsx scenario/load.ts",
     "dev:replay": "BLACKBOX_REPLAY=1 tsx watch server/index.ts",
-    "demo:check": "tsx scripts/demo-check.ts"
+    "demo:check": "tsx scripts/demo-check.ts",
+    "agent": "tsx scripts/agent.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",

@@ -1,0 +1,1 @@
+{ "task": "challenge", "incident": "BB-0417", "claim": "The refunds spiked because the payments provider returned duplicate payment IDs, so customers were refunded twice." }

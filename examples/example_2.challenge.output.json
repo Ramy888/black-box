@@ -1,0 +1,40 @@
+{
+  "task": "challenge",
+  "mode": "live",
+  "claim": "The refunds spiked because the payments provider returned duplicate payment IDs, so customers were refunded twice.",
+  "verdict": "struck",
+  "decided_by": [
+    "S1",
+    "S2"
+  ],
+  "why": "S1 and S2 show 0 duplicate payment IDs and 0 double refunds, directly contradicting the claim.",
+  "evidence_reproduced": true,
+  "probes": [
+    {
+      "cell": "S1",
+      "report": "OPS-882 asks about duplicate payment IDs; the payments table has 132 payments with 132 distinct provider refs, so 0 duplicates."
+    },
+    {
+      "cell": "S2",
+      "report": "120 refunds were issued for 120 distinct requests, so 0 requests were refunded more than once."
+    }
+  ],
+  "model_calls": [
+    {
+      "agent": "SKP",
+      "budget": 2048,
+      "outcome": "exhausted",
+      "model": null,
+      "from_cache": null,
+      "ms": null
+    },
+    {
+      "agent": "SKP",
+      "budget": 4096,
+      "outcome": "ok",
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "from_cache": false,
+      "ms": 27687
+    }
+  ]
+}

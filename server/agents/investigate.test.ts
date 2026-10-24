@@ -8,6 +8,7 @@ import { investigate, type InvestigationEvent } from "./investigate.ts";
 import { InvalidReply, parseClaims } from "./root-cause.ts";
 import { parseVerdict, PROBES } from "./skeptic.ts";
 import { WITNESSES } from "./witness.ts";
+import { runTask } from "../run.ts";
 
 // Zetaris-shaped answers (all strings) keyed by the cell whose query asks for them.
 const ROWS: Record<string, unknown[][]> = {
@@ -147,5 +148,19 @@ describe("parseVerdict", () => {
   it("rejects a strike that cites no real evidence, or a reply without WHY", () => {
     expect(() => parseVerdict("VERDICT: STRUCK [Z9]\nWHY: trust me", valid)).toThrow(InvalidReply);
     expect(() => parseVerdict("VERDICT: SURVIVES [C1]", valid)).toThrow(InvalidReply);
+  });
+});
+
+describe("run entry point", () => {
+  it("challenges a user's own claim: witnesses, probes, a Skeptic verdict, and which model answered", async () => {
+    const { output, trace } = await runTask({ task: "challenge", incident: "BB-0417", claim: "Refunds were paid twice." }, { query, ai: route(async () => ok(RCA_REPLY)), replay: false });
+    expect(output).toMatchObject({ task: "challenge", verdict: "survives", evidence_reproduced: true });
+    expect((output as any).probes.map((p: any) => p.cell)).toEqual(["S1", "S2"]);
+    expect((output as any).model_calls).toEqual([expect.objectContaining({ agent: "SKP", model: "nvidia/nemotron", outcome: "ok" })]);
+    expect(trace[0]).toMatchObject({ type: "input" });
+  });
+
+  it("rejects an incident it does not ship", async () => {
+    await expect(runTask({ task: "investigate", incident: "BB-9999" as "BB-0417" }, { query, ai: route(async () => ok(RCA_REPLY)), replay: false })).rejects.toThrow(/Unknown incident/);
   });
 });

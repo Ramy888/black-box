@@ -1,0 +1,32 @@
+{
+  "task": "challenge",
+  "mode": "live",
+  "claim": "The refund agent was still prompted with a 30-day refund window after the live policy changed to 14 days.",
+  "verdict": "survives",
+  "decided_by": [
+    "B1",
+    "B2"
+  ],
+  "why": "[B1] directly shows the agent prompted with the 30-day refund policy, and [B2] confirms refund reasons referenced that window despite the live 14-day policy.",
+  "evidence_reproduced": true,
+  "probes": [
+    {
+      "cell": "S1",
+      "report": "OPS-882 asks about duplicate payment IDs; the payments table has 132 payments with 132 distinct provider refs, so 0 duplicates."
+    },
+    {
+      "cell": "S2",
+      "report": "120 refunds were issued for 120 distinct requests, so 0 requests were refunded more than once."
+    }
+  ],
+  "model_calls": [
+    {
+      "agent": "SKP",
+      "budget": 2048,
+      "outcome": "ok",
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "from_cache": false,
+      "ms": 32059
+    }
+  ]
+}

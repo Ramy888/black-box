@@ -66,6 +66,8 @@ flowchart LR
 
 ## How the sponsor technology is used
 
+The full explanation, with the test behind each engine, is in [docs/sponsor-tech.md](docs/sponsor-tech.md).
+
 **Zetaris (data).** Every piece of evidence is a SQL query sent to the local Zetaris platform over REST (`POST /api/v1.0/sql-editor/sqls/run`). The incident spans three sources registered in Zetaris: a Postgres datasource (`SHOP_PG`: orders, refunds, payments, policy versions), and two Lightning filestore tables (`BB_FILES.agent_traces` as JSON, `BB_FILES.ops_tickets` as CSV). Several queries join across sources in one statement, for example B2 (agent traces × Postgres refunds × the live policy) and S1 (tickets CSV × payments). The flight recorder reads all three through Zetaris too.
 
 **Meterless (build and power).**
@@ -108,6 +110,19 @@ Open the UI, click **Investigate**, then **Cross-examine the finding**, **Approv
    ```
 
 A live investigation takes 3–7 minutes (several Nemotron reasoning calls of 20–80 s each). Every live run overwrites the recordings in `data/recordings/`.
+
+## Run it without the UI (sample inputs and real outputs)
+
+`npm run agent -- --input <file>` runs one input through the same agents and writes `<file>.output.json` and `<file>.trace.jsonl` (every event, every Zetaris evidence query and every model call with the model that answered). `POST /api/run` takes the same JSON. Live when the services are up (the run is recorded), otherwise from the recording; the output's `mode` says which.
+
+| Input (`examples/`) | What it asks | Real output (run on 24 Oct) |
+|---|---|---|
+| `example_1.investigate.json` | Why did the refund agent pay refunds it should not have? | root cause + 3 surviving claims, the false lead struck, a proposed guardrail (from the recorded live run) |
+| `example_2.challenge.json` | "The payments provider returned duplicate payment IDs, so customers were refunded twice." | **struck** by the Skeptic: S1 and S2 show 0 duplicate payment IDs and 0 double refunds (live) |
+| `example_3.challenge.json` | "The agent was still prompted with a 30-day window after the policy changed to 14 days." | **survives**: B1 shows the 30-day prompt, B2 the reasons it gave (live) |
+| `example_4.airlock.json` | Sign REM's guardrail and replay the 40 bad requests | 40 attempted, 40 blocked, **0 payouts executed** (live, through Nightshift) |
+
+A `challenge` input puts your own hypothesis in front of the Skeptic, with every witness's evidence and its own probes. In the `airlock` input, `approver` stands in for the human who clicks "Approve and sign" in the UI.
 
 ## Reproducible execution
 

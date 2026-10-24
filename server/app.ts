@@ -2,6 +2,7 @@ import path from "node:path";
 import { Hono } from "hono";
 import type { Context } from "hono";
 import { streamSSE } from "hono/streaming";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import pg from "pg";
 import { INCIDENT_AT } from "../scenario/generate.ts";
@@ -16,6 +17,7 @@ import { AIRLOCK_RUN, runAirlock, type AirlockEvent } from "./gate/airlock.ts";
 import { ContractInvalid, signContract, signingKey, verifyContract, type Contract } from "./gate/contract.ts";
 import { guardrailStore } from "./gate/store.ts";
 import { recording, replaying } from "./replay.ts";
+import { runTask, type RunInput } from "./run.ts";
 
 export const RECORDING = path.join(import.meta.dirname, "..", "data", "recordings", "bb-0417.json");
 export const CROSSEXAM_RECORDING = path.join(import.meta.dirname, "..", "data", "recordings", "crossexam-0417.json");
@@ -29,7 +31,7 @@ export const FLIGHT_RECORDING = path.join(import.meta.dirname, "..", "data", "re
  */
 let modeCache: { at: number; replay: boolean; reason?: string } | undefined;
 const within = <T>(p: Promise<T>, ms: number) => Promise.race([p, new Promise<never>((_, no) => setTimeout(() => no(new Error("timeout")), ms))]);
-async function mode(): Promise<{ replay: boolean; reason?: string }> {
+export async function mode(): Promise<{ replay: boolean; reason?: string }> {
   if (process.env.BLACKBOX_REPLAY === "1") return { replay: true, reason: "BLACKBOX_REPLAY=1" };
   if (modeCache && Date.now() - modeCache.at < 30_000) return modeCache;
   const down: string[] = [];
@@ -111,6 +113,19 @@ app.get("/api/crossexam", (c) => sse<CrossExamEvent>(c, async (send) => {
   rec?.save();
 }, (message) => ({ type: "crossexam-error", message })));
 
+// Programmatic entry point: POST a run input (see examples/), get the JSON output and its trace.
+app.post("/api/run", async (c) => {
+  try {
+    const input = (await c.req.json()) as RunInput;
+    const deps = await runDeps(input);
+    const result = await runTask(input, deps);
+    deps.saveRecording?.();
+    return c.json(result);
+  } catch (err) {
+    return c.json({ error: (err as Error).message }, 400);
+  }
+});
+
 app.get("/api/contract", async (c) => c.json({ approved: (await store).latest() ?? null }));
 
 // "Approve and sign": a human signs a proposal REM made; the signature is an HMAC over the contract.
@@ -133,7 +148,7 @@ app.get("/api/airlock", (c) => sse<AirlockEvent>(c, async (send) => {
     if (!(await verifyContract(contract, signingKey()))) throw new ContractInvalid(`Contract ${contract.id} is unsigned or altered; the gate will not activate.`);
     if (!fs.existsSync(AIRLOCK_RECORDING)) throw new Error("No Airlock recording yet. Run one live Airlock first.");
     for (const e of JSON.parse(fs.readFileSync(AIRLOCK_RECORDING, "utf8")) as AirlockEvent[]) {
-      send(e.type === "airlock-start" ? { ...e, contract_id: contract.id, signer: contract.approved_by!, signature: contract.signature! } : e);
+      send(e.type === "airlock-start" ? { ...e, contract_id: contract.id, signer: contract.approved_by!, signature: contract.signature!, live: false } : e);
       if (e.type === "attempt") await new Promise((r) => setTimeout(r, 90));
     }
     return;
@@ -144,3 +159,20 @@ app.get("/api/airlock", (c) => sse<AirlockEvent>(c, async (send) => {
   fs.mkdirSync(path.dirname(AIRLOCK_RECORDING), { recursive: true });
   fs.writeFileSync(AIRLOCK_RECORDING, JSON.stringify(events, null, 1) + "\n");
 }, (message) => ({ type: "airlock-error", message })));
+
+export const challengeRecording = (claim: string) =>
+  path.join(import.meta.dirname, "..", "data", "recordings", `challenge-${crypto.createHash("sha256").update(claim).digest("hex").slice(0, 10)}.json`);
+
+/** Live or recorded dependencies for a run input; live runs record, so the samples replay anywhere. */
+export async function runDeps(input: RunInput): Promise<Parameters<typeof runTask>[1] & { saveRecording?: () => void }> {
+  const { replay } = await mode();
+  const file = input.task === "challenge" ? challengeRecording(input.claim) : RECORDING;
+  // The airlock signs REM's proposal from the recorded investigation; only the refund agent runs live.
+  if (replay || input.task === "airlock") {
+    const tape = replaying(file, 0);
+    return { ...tape, replay, key: signingKey(), airlockRecording: AIRLOCK_RECORDING, ...(replay ? {} : { pool: (pool ??= shopPool()), culpritAi: meterlessFromEnv() }) };
+  }
+  const rec = recording(file);
+  const zx = zetarisFromEnv();
+  return { query: rec.query((sql) => zx.query(sql)), ai: rec.ai(meterlessFromEnv()), replay, key: signingKey(), saveRecording: () => rec.save() };
+}

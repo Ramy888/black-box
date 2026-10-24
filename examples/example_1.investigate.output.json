@@ -1,0 +1,129 @@
+{
+  "task": "investigate",
+  "mode": "replay (recorded live run)",
+  "question": "Why did the refund agent pay refunds it should not have?",
+  "root_cause": "The refund agent operated under Policy v1's 30-day refund window despite Policy v2's live 14-day window taking effect on 2026-10-18.",
+  "ledger": [
+    {
+      "id": "L1",
+      "by": "WIT·3",
+      "kind": "reported",
+      "claim": "Reported by Support in OPS-882: Payments provider returning duplicate IDs?",
+      "cells": [
+        "C1"
+      ],
+      "status": "struck",
+      "skeptic": "132 payments have 132 distinct provider refs with 0 duplicates, directly contradicting the claim.",
+      "zetaris_queries": 1
+    },
+    {
+      "id": "L2",
+      "by": "RCA",
+      "kind": "root-cause",
+      "claim": "The refund agent operated under Policy v1's 30-day refund window despite Policy v2's live 14-day window taking effect on 2026-10-18.",
+      "cells": [
+        "A1",
+        "B1",
+        "B2"
+      ],
+      "status": "survives",
+      "skeptic": "The agent repeatedly invoked the 30-day refund window for deliveries after 2026-10-18, confirming operation under expired Policy v1 despite Policy v2 being live.",
+      "zetaris_queries": 3
+    },
+    {
+      "id": "L3",
+      "by": "RCA",
+      "kind": "finding",
+      "claim": "40 refunds totalling 69,422 EGP were paid for orders delivered 15 to 29 days before the incident, exceeding the live 14-day return window.",
+      "cells": [
+        "A2"
+      ],
+      "status": "survives",
+      "skeptic": "Evidence [A2] directly confirms 40 refunds totalling 69,422 EGP for orders delivered 15–29 days before the incident, past the 14-day return window, supporting the claim.",
+      "zetaris_queries": 1
+    },
+    {
+      "id": "L4",
+      "by": "RCA",
+      "kind": "finding",
+      "claim": "The agent's stated refund reasons referenced 'Within 30-day refund window' 30 times, 'Within 30-day return window' 3 times, and 'Delivered 21 days ago, within 30-day refund window' once, confirming payments past the live window.",
+      "cells": [
+        "B2"
+      ],
+      "status": "survives",
+      "skeptic": "Evidence [B2] lists the exact phrase counts and explicitly states they were for refunds past the live window, directly supporting the claim.",
+      "zetaris_queries": 1
+    }
+  ],
+  "proposed_guardrail": {
+    "id": "GC-0417-1",
+    "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+    "evidence": [
+      "L2",
+      "L3",
+      "L4",
+      "A1",
+      "B1",
+      "B2",
+      "A2"
+    ]
+  },
+  "model_calls": [
+    {
+      "agent": "RCA",
+      "budget": 2048,
+      "outcome": "exhausted",
+      "model": null,
+      "from_cache": null,
+      "ms": null
+    },
+    {
+      "agent": "RCA",
+      "budget": 4096,
+      "outcome": "ok",
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "from_cache": false,
+      "ms": 39078
+    },
+    {
+      "agent": "SKP",
+      "budget": 2048,
+      "outcome": "ok",
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "from_cache": false,
+      "ms": 21641
+    },
+    {
+      "agent": "SKP",
+      "budget": 4096,
+      "outcome": "ok",
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "from_cache": false,
+      "ms": 38666
+    },
+    {
+      "agent": "SKP",
+      "budget": 4096,
+      "outcome": "ok",
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "from_cache": false,
+      "ms": 38809
+    },
+    {
+      "agent": "SKP",
+      "budget": 4096,
+      "outcome": "exhausted",
+      "model": null,
+      "from_cache": null,
+      "ms": null
+    },
+    {
+      "agent": "SKP",
+      "budget": 8192,
+      "outcome": "ok",
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "from_cache": false,
+      "ms": 49486
+    }
+  ]
+}

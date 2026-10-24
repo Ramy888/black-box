@@ -143,7 +143,7 @@ export function Investigation() {
           <p className="muted">{caption(calls)}</p>
           <ol className="calls mono">
             {calls.map((c, i) => (
-              <li key={i}>{c.raised_by ? "↑ " : ""}{c.callsign} {c.budget.toLocaleString("en-US")} · {c.outcome}{c.receipt ? ` · ${Math.round(c.receipt.ms / 1000)} s${c.receipt.from_cache ? " · cache" : ""}` : ""}</li>
+              <li key={i}>{c.raised_by ? "↑ " : ""}{c.callsign} {c.budget.toLocaleString("en-US")} · {c.outcome}{c.receipt ? ` · ${Math.round(c.receipt.ms / 1000)} s · ${c.receipt.routed_model.split("/").pop()}${c.receipt.from_cache ? " · cache" : ""}` : ""}</li>
             ))}
           </ol>
         </section>
