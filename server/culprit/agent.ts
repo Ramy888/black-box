@@ -2,7 +2,6 @@
 // 30-day return policy (the planted bug), and it runs on the fast lane without
 // reasoning. It really issues refunds and records every tool call and decision.
 
-import type pg from "pg";
 import type { ChatMessage, Receipt } from "../ai/provider.ts";
 
 // The bug: copied into the prompt when the agent shipped, never updated after FIN-212.
@@ -14,7 +13,16 @@ export interface Trace {
   days_since_delivery: number; decision: "approve" | "deny"; reason: string; latency_ms: number;
   /** Nightshift served this decision from its exact-match cache (an earlier live Nemotron answer). */
   from_cache: boolean;
+  /** Set when a guardrail gate stopped the payout the model decided on. */
+  blocked_by?: { contract_id: string; clause: string };
 }
+
+/** A pg Pool or a single client (the Airlock runs inside one transaction). */
+export interface Db { query(text: string, values?: unknown[]): Promise<{ rows: any[] }> }
+
+/** Sits in front of issue_refund: the model decides, the gate decides whether money moves. */
+export type Gate = (ctx: { request_id: string; days_since_delivery: number; amount_egp: number }) =>
+  { allow: boolean; contract_id: string; clause?: string } | Promise<{ allow: boolean; contract_id: string; clause?: string }>;
 
 export interface Chat {
   chat(o: { messages: ChatMessage[]; model?: string; maxTokens?: number }): Promise<{ text: string; model: string; receipt?: Receipt }>;
@@ -31,7 +39,10 @@ export function parseDecision(text: string): { decision: "approve" | "deny"; rea
   }
 }
 
-export async function runRefundAgent(opts: { db: pg.Pool; ai: Chat; runId: string; now: Date; concurrency?: number; onTrace?: (t: Trace) => void }) {
+export async function runRefundAgent(opts: {
+  db: Db; ai: Chat; runId: string; now: Date; concurrency?: number; onTrace?: (t: Trace) => void;
+  /** Replay exactly these requests instead of the open queue. */ requestIds?: string[]; gate?: Gate;
+}) {
   const { db, ai, runId, now } = opts;
   const traces: Trace[] = [];
   // Stamps run on incident time (now + real elapsed), so the record lines up with the tickets that followed.
@@ -41,8 +52,9 @@ export async function runRefundAgent(opts: { db: pg.Pool; ai: Chat; runId: strin
     db.query("INSERT INTO tool_calls (run_id, request_id, ts, tool, args, result) VALUES ($1,$2,$3,$4,$5,$6)",
       [runId, requestId, clock(), tool, JSON.stringify(args), JSON.stringify(result)]);
 
-  const { rows: queue } = await db.query(
-    "SELECT r.id, r.order_id, r.reason FROM refund_requests r LEFT JOIN refunds f ON f.request_id = r.id WHERE f.id IS NULL ORDER BY r.id");
+  const { rows: queue } = opts.requestIds
+    ? await db.query("SELECT r.id, r.order_id, r.reason FROM refund_requests r WHERE r.id = ANY($1) ORDER BY r.id", [opts.requestIds])
+    : await db.query("SELECT r.id, r.order_id, r.reason FROM refund_requests r LEFT JOIN refunds f ON f.request_id = r.id WHERE f.id IS NULL ORDER BY r.id");
 
   async function handle(req: { id: string; order_id: string; reason: string }) {
     const { rows: [order] } = await db.query("SELECT id, amount_egp, delivered_at FROM orders WHERE id = $1", [req.order_id]);
@@ -60,7 +72,11 @@ export async function runRefundAgent(opts: { db: pg.Pool; ai: Chat; runId: strin
       ],
     });
     const { decision, reason } = parseDecision(reply.text);
-    if (decision === "approve") {
+    const verdict = decision === "approve" && opts.gate ? await opts.gate({ request_id: req.id, days_since_delivery: days, amount_egp: lookup.amount_egp }) : undefined;
+    const blocked_by = verdict && !verdict.allow ? { contract_id: verdict.contract_id, clause: verdict.clause ?? "" } : undefined;
+    if (blocked_by) {
+      await logTool(req.id, "issue_refund", { order_id: order.id, amount_egp: lookup.amount_egp }, { status: "blocked", ...blocked_by });
+    } else if (decision === "approve") {
       const refund = { id: `RF-${req.id.slice(3)}`, request_id: req.id, order_id: order.id, amount_egp: lookup.amount_egp, issued_at: clock(), run_id: runId };
       await db.query("INSERT INTO refunds (id, request_id, order_id, amount_egp, issued_at, run_id) VALUES ($1,$2,$3,$4,$5,$6)",
         [refund.id, refund.request_id, refund.order_id, refund.amount_egp, refund.issued_at, refund.run_id]);
@@ -70,6 +86,7 @@ export async function runRefundAgent(opts: { db: pg.Pool; ai: Chat; runId: strin
       run_id: runId, request_id: req.id, ts: clock().toISOString(), agent: "refund-agent",
       model: "meterless/fast", routed_model: reply.model, reasoning: "off", policy_in_prompt: STALE_POLICY,
       days_since_delivery: days, decision, reason, latency_ms: Date.now() - started, from_cache: reply.receipt?.from_cache ?? false,
+      ...(blocked_by ? { blocked_by } : {}),
     };
     traces.push(trace);
     opts.onTrace?.(trace);

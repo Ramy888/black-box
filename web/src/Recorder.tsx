@@ -4,7 +4,7 @@
 
 import type { InvestigationEvent } from "../../server/agents/investigate.ts";
 
-export const RECORDER_CALLSIGNS = ["WIT·1", "WIT·2", "WIT·3", "RCA", "SKP"];
+export const RECORDER_CALLSIGNS = ["WIT·1", "WIT·2", "WIT·3", "RCA", "SKP", "REM"];
 const W = 268, TOP = 22, STEP = 13;
 const colW = W / RECORDER_CALLSIGNS.length;
 const x = (c: string) => colW * RECORDER_CALLSIGNS.indexOf(c) + colW / 2;
@@ -49,6 +49,7 @@ export function Recorder({ events }: { events: InvestigationEvent[] }) {
             </g>
           );
         }
+        if (e.type === "contract") return <rect key={i} x={x("REM") - 5} y={yy - 5} width={10} height={10} className="rec-contract" />;
         if (e.type === "verdict") return <circle key={i} cx={x("SKP")} cy={yy} r={3.5} className="rec-ok" />;
         return null;
       })}

@@ -2,6 +2,8 @@
 // claim lands in the Evidence Ledger with the Zetaris queries of the cells it cites.
 
 import { runRootCause, type Chat, type ModelCall } from "./root-cause.ts";
+import type { Contract } from "../gate/contract.ts";
+import { proposeGuardrail } from "./remediator.ts";
 import { runSkeptic, type Verdict } from "./skeptic.ts";
 import { reportedHypotheses, runWitness, WITNESSES, type Evidence, type Query } from "./witness.ts";
 
@@ -19,6 +21,7 @@ export type InvestigationEvent =
   | { type: "model"; call: ModelCall }
   | { type: "ledger"; row: LedgerRow }
   | { type: "verdict"; verdict: Verdict }
+  | { type: "contract"; contract: Contract }
   | { type: "done"; claims: number; survives: number; struck: number; ms: number }
   | { type: "error"; message: string };
 
@@ -75,6 +78,12 @@ export async function investigate({ query, ai, emit }: { query: Query; ai: Chat;
   }
   const struck = ledger.filter((r) => r.status === "struck").length;
   emit({ type: "agent", callsign: "SKP", state: "done", note: `${struck} struck, ${ledger.length - struck} survive` });
+
+  emit({ type: "handoff", from: "SKP", to: "REM", note: "surviving root cause" });
+  emit({ type: "agent", callsign: "REM", state: "working", note: "compiling the root cause into a guardrail (no model call)" });
+  const contract = proposeGuardrail(ledger, evidence);
+  if (contract) emit({ type: "contract", contract });
+  emit({ type: "agent", callsign: "REM", state: "done", note: contract ? `proposed ${contract.id}, awaiting a human signature` : "no surviving root cause, nothing to propose" });
   emit({ type: "done", claims: ledger.length, survives: ledger.length - struck, struck, ms: Date.now() - started });
-  return { evidence, ledger };
+  return { evidence, ledger, contract };
 }

@@ -52,7 +52,7 @@ button.primary:disabled { opacity: 0.6; cursor: progress; }
 .mode.replay { border-style: dashed; }
 /* ≥1080: recorder 300 · ledger fluid · budget 260. 720-1080: ledger first, then agents and budget side by side. */
 .room-grid { display: grid; gap: 16px; grid-template-columns: 300px minmax(0, 1fr) 260px; grid-template-areas: "agents ledger budget"; align-items: start; }
-.room-grid .agents { grid-area: agents; } .room-grid .ledger { grid-area: ledger; } .room-grid .budget { grid-area: budget; }
+.room-grid .agents { grid-area: agents; } .room-grid .ledger { grid-area: ledger; } .room-grid .side { grid-area: budget; display: grid; gap: 16px; align-content: start; }
 @media (max-width: 1079px) { .room-grid { grid-template-columns: 1fr 1fr; grid-template-areas: "ledger ledger" "agents budget"; } }
 @media (max-width: 719px) { .room-grid { grid-template-columns: 1fr; grid-template-areas: "ledger" "agents" "budget"; } .query { display: none; } }
 .agents ol, .calls { list-style: none; margin: 0; padding: 0; }
@@ -91,3 +91,28 @@ button.primary:disabled { opacity: 0.6; cursor: progress; }
 .rec-spike { stroke: var(--refuted); stroke-width: 2; fill: none; }
 .rec-refuted { font: 700 9px var(--mono); fill: var(--refuted); }
 .rec-ok { fill: var(--survives); }
+.contract { border: 1.5px dashed var(--ink); border-radius: 2px; padding: 10px; font-size: 13px; }
+.contract p { margin: 0 0 8px; }
+.contract .clause { font-size: 13px; color: var(--ink); }
+.contract .signed { color: var(--survives); margin: 0; }
+button.stamp { width: 100%; }
+.airlock { margin-top: 16px; }
+.airlock-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.doors { display: block; width: 100%; max-width: 720px; height: auto; margin: 8px 0; }
+.door { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; }
+.door.inner { stroke-dasharray: 5 3; }
+.door.inner.shut { fill: var(--ink); }
+.door-label { font: 700 11px var(--mono); fill: var(--ink); }
+.door.inner.shut + .door-label { fill: var(--surface); }
+.door-tag { font: 700 10px var(--mono); fill: var(--ink); }
+/* The one authored moment: a hard cut, no easing. */
+.blocked-band { background: var(--recorder); color: var(--on-recorder); margin: 16px -14px -14px; padding: 18px 20px; display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center; }
+.blocked-band p { margin: 0 0 6px; color: var(--on-recorder); }
+.blocked-word { font: 900 64px/1 var(--display); font-stretch: 62%; letter-spacing: 1px; }
+@media (max-width: 719px) { .blocked-band { grid-template-columns: 1fr; } .blocked-word { font-size: 48px; } }
+.rec-contract { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 2 2; }
+.crossexam { margin-top: 16px; }
+.exchanges { list-style: none; margin: 0; padding: 0; }
+.exchanges li { border-top: 1px solid var(--rule); padding: 9px 0; }
+.exchanges li p { margin: 0 0 4px; }
+.exchanges li.weak { border-left: 3px solid var(--refuted); padding-left: 10px; }

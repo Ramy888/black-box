@@ -38,8 +38,9 @@ export interface MeterlessOptions {
 const RETRY_DELAYS_MS = [2000, 4000, 8000, 16000, 32000];
 // NVIDIA's free endpoint rate-limits; Nightshift passes that through as 429 or as 502 "nvidia_429".
 const isRateLimited = (status: number, body: string) => status === 429 || /_429\b|"status":\s*429/.test(body);
-// Nemotron always reasons first: an empty reply means max_tokens ran out mid-thought; 499 is Nightshift's ~45 s abort.
-const isBudgetExhausted = (status: number, body: string) => status === 499 || /_empty_response/.test(body);
+// Nemotron always reasons first: an empty reply means max_tokens ran out mid-thought; 499 / request_aborted is
+// Nightshift cutting off a call that reasoned too long (~45 s non-streamed, longer when streamed).
+const isBudgetExhausted = (status: number, body: string) => status === 499 || /_empty_response|request_aborted/.test(body);
 
 function toReceipt(m: any, model: string, ms: number): Receipt {
   const phase = m?.phases?.[0];

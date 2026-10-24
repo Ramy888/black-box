@@ -1,26 +1,4 @@
 {
- "sql:733efc410919198e": {
-  "ok": true,
-  "value": {
-   "rows": [
-    [
-     "1",
-     "30",
-     "2026-01-01 00:00:00.0",
-     "2026-10-18 00:00:00.0",
-     "Refunds within 30 days of delivery"
-    ],
-    [
-     "2",
-     "14",
-     "2026-10-18 00:00:00.0",
-     null,
-     "Refunds within 14 days of delivery (finance change FIN-212)"
-    ]
-   ]
-  },
-  "ms": 5245
- },
  "sql:f46372686bbcb9ff": {
   "ok": true,
   "value": {
@@ -42,7 +20,7 @@
     ]
    ]
   },
-  "ms": 5236
+  "ms": 33170
  },
  "sql:30047622894a5d6c": {
   "ok": true,
@@ -56,7 +34,29 @@
     ]
    ]
   },
-  "ms": 6666
+  "ms": 38182
+ },
+ "sql:733efc410919198e": {
+  "ok": true,
+  "value": {
+   "rows": [
+    [
+     "1",
+     "30",
+     "2026-01-01 00:00:00.0",
+     "2026-10-18 00:00:00.0",
+     "Refunds within 30 days of delivery"
+    ],
+    [
+     "2",
+     "14",
+     "2026-10-18 00:00:00.0",
+     null,
+     "Refunds within 14 days of delivery (finance change FIN-212)"
+    ]
+   ]
+  },
+  "ms": 42111
  },
  "sql:4286da6f13774439": {
   "ok": true,
@@ -70,7 +70,7 @@
     ]
    ]
   },
-  "ms": 6094
+  "ms": 16725
  },
  "sql:cfb4a797795fda37": {
   "ok": true,
@@ -114,24 +114,54 @@
     ]
    ]
   },
-  "ms": 4706
+  "ms": 25731
  },
  "chat:04893aab82038db5": {
+  "ok": false,
+  "error": {
+   "name": "BudgetExhausted",
+   "message": "stream error: {\"message\":\"/nemotron-3.5-lightning-30b-a3b_empty_response\",\"type\":\"api_error\",\"code\":\"provider_error\",\"param\":null,\"meterless_detail\":\"nvidia/nemotron-3.5-lightning-30b-a3b_empty_response\"}"
+  },
+  "ms": 22130
+ },
+ "chat:8dd5152289299f47": {
   "ok": true,
   "value": {
-   "text": "ROOT: The refund agent applied Policy v1's 30-day refund window despite Policy v2's live 14-day window since 2026-10-18. [A1, B2]  \nFINDING: 40 refunds totalling 69,422 EGP were paid for orders delivered 15 to 29 days before the incident, past the live 14-day return window. [A2]  \nFINDING: The agent's own refund reasons consistently reference 'Within 30-day refund window', confirming operation under the expired policy. [B2]",
+   "text": "ROOT: The refund agent operated under Policy v1's 30-day refund window despite Policy v2's live 14-day window taking effect on 2026-10-18. [A1, B1, B2]\nFINDING: 40 refunds totalling 69,422 EGP were paid for orders delivered 15 to 29 days before the incident, exceeding the live 14-day return window. [A2]\nFINDING: The agent's stated refund reasons referenced 'Within 30-day refund window' 30 times, 'Within 30-day return window' 3 times, and 'Delivered 21 days ago, within 30-day refund window' once, confirming payments past the live window. [B2]",
    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
    "receipt": {
     "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-    "from_cache": true,
+    "from_cache": false,
     "cache_status": null,
     "tokens_out": null,
     "tokens_per_s": null,
     "cost_usd": null,
-    "ms": 351
+    "ms": 39078
    }
   },
-  "ms": 353
+  "ms": 39080
+ },
+ "sql:733efc410919198e#2": {
+  "ok": true,
+  "value": {
+   "rows": [
+    [
+     "1",
+     "30",
+     "2026-01-01 00:00:00.0",
+     "2026-10-18 00:00:00.0",
+     "Refunds within 30 days of delivery"
+    ],
+    [
+     "2",
+     "14",
+     "2026-10-18 00:00:00.0",
+     null,
+     "Refunds within 14 days of delivery (finance change FIN-212)"
+    ]
+   ]
+  },
+  "ms": 9944
  },
  "sql:f46372686bbcb9ff#2": {
   "ok": true,
@@ -154,29 +184,35 @@
     ]
    ]
   },
-  "ms": 2655
+  "ms": 9952
  },
- "sql:733efc410919198e#2": {
+ "sql:30047622894a5d6c#2": {
   "ok": true,
   "value": {
    "rows": [
     [
-     "1",
-     "30",
-     "2026-01-01 00:00:00.0",
-     "2026-10-18 00:00:00.0",
-     "Refunds within 30 days of delivery"
-    ],
-    [
-     "2",
-     "14",
-     "2026-10-18 00:00:00.0",
-     null,
-     "Refunds within 14 days of delivery (finance change FIN-212)"
+     "Refunds are allowed within 30 days of delivery.",
+     "nvidia/nemotron-3.5-lightning-30b-a3b",
+     "off",
+     "132"
     ]
    ]
   },
-  "ms": 2656
+  "ms": 10787
+ },
+ "sql:4286da6f13774439#2": {
+  "ok": true,
+  "value": {
+   "rows": [
+    [
+     "40",
+     "69422.000000000000000000",
+     "15",
+     "29"
+    ]
+   ]
+  },
+  "ms": 15219
  },
  "sql:cfb4a797795fda37#2": {
   "ok": true,
@@ -220,21 +256,7 @@
     ]
    ]
   },
-  "ms": 11697
- },
- "sql:4286da6f13774439#2": {
-  "ok": true,
-  "value": {
-   "rows": [
-    [
-     "40",
-     "69422.000000000000000000",
-     "15",
-     "29"
-    ]
-   ]
-  },
-  "ms": 11701
+  "ms": 15221
  },
  "sql:59657e2404042620": {
   "ok": true,
@@ -247,7 +269,7 @@
     ]
    ]
   },
-  "ms": 4611
+  "ms": 27356
  },
  "sql:d62d06d1addefe4e": {
   "ok": true,
@@ -259,12 +281,12 @@
     ]
    ]
   },
-  "ms": 1232
+  "ms": 11154
  },
  "chat:d67657c7e6d551ad": {
   "ok": true,
   "value": {
-   "text": "VERDICT: STRUCK [S1]  \nWHY: The payments table has 132 payments with 132 distinct provider refs, proving zero duplicates and directly contradicting the claim.",
+   "text": "VERDICT: STRUCK [S1] [S2]\nWHY: 132 payments have 132 distinct provider refs with 0 duplicates, directly contradicting the claim.",
    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
    "receipt": {
     "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
@@ -273,15 +295,15 @@
     "tokens_out": null,
     "tokens_per_s": null,
     "cost_usd": null,
-    "ms": 21193
+    "ms": 21641
    }
   },
-  "ms": 21194
+  "ms": 21642
  },
- "chat:00ad032e6a08c996": {
+ "chat:f17c3f9ce66eab2c": {
   "ok": true,
   "value": {
-   "text": "VERDICT: SURVIVES [A1, B2]\nWHY: The agent's stated refund reasons exclusively reference the 30-day window, directly supporting that Policy v1 was applied despite Policy v2's live 14-day window since 2026-10-18.",
+   "text": "VERDICT: SURVIVES [A1, B1, B2]\nWHY: The agent repeatedly invoked the 30-day refund window for deliveries after 2026-10-18, confirming operation under expired Policy v1 despite Policy v2 being live.",
    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
    "receipt": {
     "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
@@ -290,15 +312,15 @@
     "tokens_out": null,
     "tokens_per_s": null,
     "cost_usd": null,
-    "ms": 52499
+    "ms": 38666
    }
   },
-  "ms": 52499
+  "ms": 38667
  },
- "chat:562a47da4a6c7ffc": {
+ "chat:6016ad05fe605dd4": {
   "ok": true,
   "value": {
-   "text": "VERDICT: SURVIVES [A2]\nWHY: [A2] exactly corroborates the claim, and [S1],[S2] contain no evidence contradicting the 15–29 day window detail.",
+   "text": "VERDICT: SURVIVES [A2]\nWHY: Evidence [A2] directly confirms 40 refunds totalling 69,422 EGP for orders delivered 15–29 days before the incident, past the 14-day return window, supporting the claim.",
    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
    "receipt": {
     "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
@@ -307,15 +329,23 @@
     "tokens_out": null,
     "tokens_per_s": null,
     "cost_usd": null,
-    "ms": 25595
+    "ms": 38809
    }
   },
-  "ms": 25597
+  "ms": 38809
  },
- "chat:b59602cd025e3138": {
+ "chat:cabe45db24b6f459": {
+  "ok": false,
+  "error": {
+   "name": "BudgetExhausted",
+   "message": "stream error: {\"message\":\"/nemotron-3.5-lightning-30b-a3b_empty_response\",\"type\":\"api_error\",\"code\":\"provider_error\",\"param\":null,\"meterless_detail\":\"nvidia/nemotron-3.5-lightning-30b-a3b_empty_response\"}"
+  },
+  "ms": 76328
+ },
+ "chat:1b1f0a7ef633c511": {
   "ok": true,
   "value": {
-   "text": "VERDICT: SURVIVES [B2]\nWHY: Evidence [B2] explicitly documents the agent's refund reasons as repeatedly referencing the \"30-day refund window,\" directly supporting the claim that operation occurred under the expired policy.",
+   "text": "VERDICT: SURVIVES [B2]\nWHY: Evidence [B2] lists the exact phrase counts and explicitly states they were for refunds past the live window, directly supporting the claim.",
    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
    "receipt": {
     "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
@@ -324,9 +354,9 @@
     "tokens_out": null,
     "tokens_per_s": null,
     "cost_usd": null,
-    "ms": 51916
+    "ms": 49486
    }
   },
-  "ms": 51916
+  "ms": 49486
  }
 }

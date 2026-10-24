@@ -55,7 +55,7 @@ describe("investigation", () => {
     expect(ledger[0].claim).toBe("Reported by Support in OPS-882: Payments provider returning duplicate IDs?");
     expect(ledger[1].sql).toEqual(WITNESSES.flatMap((w) => w.surveys).filter((s) => ["A1", "B1"].includes(s.cell)).map((s) => s.sql));
     expect(ledger[1].sources).toEqual(["SHOP_PG · Postgres", "BB_FILES.agent_traces · JSON"]);
-    expect(events.filter((e) => e.type === "handoff").map((e) => (e as any).from).sort()).toEqual(["RCA", "WIT·1", "WIT·2", "WIT·3"]);
+    expect(events.filter((e) => e.type === "handoff").map((e) => (e as any).from).sort()).toEqual(["RCA", "SKP", "WIT·1", "WIT·2", "WIT·3"]);
   });
 
   it("has SKP strike the reported false lead with its own probes, and let the RCA claims stand", async () => {
@@ -64,6 +64,14 @@ describe("investigation", () => {
     expect(ledger[0].verdict).toMatchObject({ by: "SKP", cells: ["S1", "S2"], reproduced: true });
     expect(events.filter((e) => e.type === "evidence").map((e) => (e as any).evidence.cell)).toEqual(expect.arrayContaining(["S1", "S2"]));
     expect(events.at(-1)).toMatchObject({ type: "done", claims: 3, survives: 2, struck: 1 });
+  });
+
+  it("has REM propose a guardrail from the surviving root cause, citing the survivors", async () => {
+    const { contract, events } = await run(async () => ok(RCA_REPLY));
+    expect(contract).toMatchObject({ id: "GC-0417-1", proposed_by: "REM", evidence: ["L2", "L3", "A1", "B1", "A2"] });
+    expect(contract!.context).toContain("Live policy at proposal: v2, 14 days.");
+    expect(contract!.signature).toBeUndefined();
+    expect(events.some((e) => e.type === "contract")).toBe(true);
   });
 
   it("starts every round after a strike one rung higher, and says why", async () => {

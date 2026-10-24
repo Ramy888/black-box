@@ -79,6 +79,8 @@ async function registerInZetaris(opsTicketsPath: string) {
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === import.meta.filename) {
+  // A reset incident has no signed guardrail yet: a human approves it again in the demo.
+  fs.rmSync(path.join(import.meta.dirname, "..", "data", "runtime", ".world", "guardrails.json"), { force: true });
   const s = await loadShopDb();
   console.log(`shop-db: ${s.orders.length} orders, ${s.refundRequests.length} refund requests, ${s.policyVersions.length} policy versions`);
   const tmp = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "bb-")), "ops_tickets.csv");

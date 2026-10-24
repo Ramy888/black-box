@@ -1,10 +1,14 @@
 // Investigation Room: streams the investigation over SSE. Agents on the left, evidence
 // tags and the ledger in the middle, the Nemotron thinking budget on the right.
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { InvestigationEvent, LedgerRow } from "../../server/agents/investigate.ts";
 import type { ModelCall } from "../../server/agents/root-cause.ts";
 import type { Evidence } from "../../server/agents/witness.ts";
+import type { Contract } from "../../server/gate/contract.ts";
+import { Airlock } from "./Airlock.tsx";
+import { ContractPanel } from "./Contract.tsx";
+import { CrossExam } from "./CrossExam.tsx";
 import { Recorder, RECORDER_CALLSIGNS as CALLSIGNS } from "./Recorder.tsx";
 
 const MAX_BUDGET = 8192;
@@ -19,11 +23,18 @@ export function Investigation() {
   const [calls, setCalls] = useState<ModelCall[]>([]);
   const [status, setStatus] = useState<string>();
   const [events, setEvents] = useState<InvestigationEvent[]>([]);
+  const [proposal, setProposal] = useState<Contract>();
+  const [approved, setApproved] = useState<Contract>();
+  const [weak, setWeak] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch("/api/contract").then((r) => r.json()).then((b) => setApproved(b.approved ?? undefined)).catch(() => {});
+  }, []);
   const source = useRef<EventSource>();
 
   function start() {
     source.current?.close();
-    setAgents({}); setEvidence([]); setLedger([]); setCalls([]); setEvents([]); setStatus(undefined); setRunning(true);
+    setAgents({}); setEvidence([]); setLedger([]); setCalls([]); setEvents([]); setWeak([]); setProposal(undefined); setStatus(undefined); setRunning(true);
     const es = new EventSource("/api/investigate");
     source.current = es;
     const stop = (msg: string) => { setStatus(msg); setRunning(false); es.close(); };
@@ -35,6 +46,7 @@ export function Investigation() {
       if (e.type === "evidence") setEvidence((v) => [...v, e.evidence].sort((a, b) => a.cell.localeCompare(b.cell)));
       if (e.type === "ledger") setLedger((v) => [...v, e.row]);
       if (e.type === "model") setCalls((v) => [...v, e.call]);
+      if (e.type === "contract") setProposal(e.contract);
       if (e.type === "verdict") setLedger((v) => v.map((r) => (r.id === e.verdict.id ? { ...r, status: e.verdict.status, verdict: e.verdict } : r)));
       if (e.type === "done") stop(`${e.survives} claims survive, ${e.struck} struck by SKP · ${Math.round(e.ms / 1000)} s`);
       if (e.type === "error") stop(`Investigation failed: ${e.message}`);
@@ -58,7 +70,7 @@ export function Investigation() {
           <header><b>Agents</b><span className="mono muted">callsign · state</span></header>
           <ol>
             {CALLSIGNS.map((c) => {
-              const a = agents[c] ?? { state: "idle", note: c === "RCA" ? "waits for the witnesses" : c === "SKP" ? "waits for the claims" : "waits for Investigate" };
+              const a = agents[c] ?? { state: "idle", note: { RCA: "waits for the witnesses", SKP: "waits for the claims", REM: "waits for a surviving root cause" }[c] ?? "waits for Investigate" };
               return (
                 <li key={c} className={`agent ${a.state}`}>
                   <span className="mono callsign">{c}</span>
@@ -88,6 +100,7 @@ export function Investigation() {
                     </td>
                     <td className="mono">{r.rows}</td>
                     <td className="status">
+                      {weak.includes(r.id) && <><b className="error">Weak under CNT</b><br /></>}
                       {r.verdict ? <b>{r.verdict.status === "struck" ? "Struck by SKP" : "Survives SKP"}</b> : r.kind === "reported" ? "Open, unverified" : "Open"}
                       {r.verdict && <span className="muted"><br />{r.verdict.why}{r.verdict.cells.length ? ` [${r.verdict.cells.join(", ")}]` : ""}</span>}
                     </td>
@@ -108,6 +121,7 @@ export function Investigation() {
           </div>
         </section>
 
+        <div className="side">
         <section className="panel budget">
           <header><b>Thinking budget</b><span className="mono muted">Nemotron</span></header>
           <div className="meter" role="meter" aria-valuemin={0} aria-valuemax={MAX_BUDGET} aria-valuenow={last?.budget ?? 0} aria-label="Nemotron thinking budget">
@@ -121,7 +135,14 @@ export function Investigation() {
             ))}
           </ol>
         </section>
+        <section className="panel">
+          <header><b>Guardrail contract</b><span className="mono muted">{approved ? "signed" : proposal ? "awaiting signature" : "none"}</span></header>
+          <ContractPanel proposal={proposal} approved={approved} onApproved={setApproved} />
+        </section>
+        </div>
       </div>
+      <CrossExam ready={!running && ledger.some((r) => r.status === "survives")} onCall={(c) => setCalls((v) => [...v, c])} onWeak={(id) => setWeak((v) => [...v, id])} />
+      <Airlock approved={approved} />
     </section>
   );
 }

@@ -1,0 +1,379 @@
+[
+ {
+  "type": "airlock-start",
+  "contract_id": "GC-0417-1",
+  "signer": "On-call lead",
+  "signature": "d10067c7a6dc6cc137cf87d97edfbaaa303dfeb6a2aa7ef12fe078401f03cc0d",
+  "requests": 40,
+  "live_max_days": 14,
+  "live_version": 2
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0081",
+  "decision": "approve",
+  "days_since_delivery": 27,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0082",
+  "decision": "approve",
+  "days_since_delivery": 22,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0084",
+  "decision": "approve",
+  "days_since_delivery": 19,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0083",
+  "decision": "approve",
+  "days_since_delivery": 17,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0085",
+  "decision": "approve",
+  "days_since_delivery": 28,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0086",
+  "decision": "approve",
+  "days_since_delivery": 17,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0087",
+  "decision": "approve",
+  "days_since_delivery": 24,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0088",
+  "decision": "approve",
+  "days_since_delivery": 21,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0089",
+  "decision": "approve",
+  "days_since_delivery": 16,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0090",
+  "decision": "approve",
+  "days_since_delivery": 17,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0091",
+  "decision": "approve",
+  "days_since_delivery": 22,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0092",
+  "decision": "approve",
+  "days_since_delivery": 27,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0093",
+  "decision": "approve",
+  "days_since_delivery": 17,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0094",
+  "decision": "approve",
+  "days_since_delivery": 23,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0095",
+  "decision": "approve",
+  "days_since_delivery": 25,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0096",
+  "decision": "approve",
+  "days_since_delivery": 15,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0097",
+  "decision": "approve",
+  "days_since_delivery": 16,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0098",
+  "decision": "approve",
+  "days_since_delivery": 29,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0099",
+  "decision": "approve",
+  "days_since_delivery": 19,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0100",
+  "decision": "approve",
+  "days_since_delivery": 29,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0102",
+  "decision": "approve",
+  "days_since_delivery": 29,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0101",
+  "decision": "approve",
+  "days_since_delivery": 25,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0103",
+  "decision": "approve",
+  "days_since_delivery": 27,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0104",
+  "decision": "approve",
+  "days_since_delivery": 17,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0105",
+  "decision": "approve",
+  "days_since_delivery": 28,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0106",
+  "decision": "approve",
+  "days_since_delivery": 21,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0107",
+  "decision": "approve",
+  "days_since_delivery": 23,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0108",
+  "decision": "approve",
+  "days_since_delivery": 20,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0109",
+  "decision": "approve",
+  "days_since_delivery": 22,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0110",
+  "decision": "approve",
+  "days_since_delivery": 29,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0111",
+  "decision": "approve",
+  "days_since_delivery": 23,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0112",
+  "decision": "approve",
+  "days_since_delivery": 17,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0113",
+  "decision": "approve",
+  "days_since_delivery": 25,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0114",
+  "decision": "approve",
+  "days_since_delivery": 15,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0115",
+  "decision": "approve",
+  "days_since_delivery": 28,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0116",
+  "decision": "approve",
+  "days_since_delivery": 28,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0117",
+  "decision": "approve",
+  "days_since_delivery": 21,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0118",
+  "decision": "approve",
+  "days_since_delivery": 27,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0119",
+  "decision": "approve",
+  "days_since_delivery": 23,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0120",
+  "decision": "approve",
+  "days_since_delivery": 24,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+ },
+ {
+  "type": "airlock-done",
+  "attempted": 40,
+  "blocked": 40,
+  "payouts": 0,
+  "ms": 745,
+  "sealed": true
+ }
+]

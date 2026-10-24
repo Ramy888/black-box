@@ -110,6 +110,7 @@ describe("meterless provider", () => {
     const ai = (r: () => Response) => createMeterless({ ...base, fetch: vi.fn(async () => r()) });
     const msg = { messages: [{ role: "user" as const, content: "x" }], stream: true };
     await expect(ai(() => sse({ error: { message: "/nemotron_empty_response" } })).chat(msg)).rejects.toBeInstanceOf(BudgetExhausted);
+    await expect(ai(() => sse({ error: { code: "request_aborted" } })).chat(msg)).rejects.toBeInstanceOf(BudgetExhausted);
     await expect(ai(() => sse({ model: "nvidia/nemotron", choices: [{ delta: {} }] })).chat(msg)).rejects.toBeInstanceOf(BudgetExhausted);
   });
 });
