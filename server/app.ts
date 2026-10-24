@@ -35,7 +35,7 @@ async function mode(): Promise<{ replay: boolean; reason?: string }> {
   const down: string[] = [];
   await Promise.all([
     within((async () => { if ((await meterlessFromEnv().status()).state !== "online") throw new Error(); })(), 8000).catch(() => down.push("Nightshift")),
-    within(zetarisFromEnv().query("SELECT 1"), 15000).catch(() => down.push("Zetaris")),
+    within((async () => zetarisFromEnv().query("SELECT 1"))(), 15000).catch(() => down.push("Zetaris")), // throws on a missing key: also "down"
     within((async () => { pool ??= shopPool(); await pool.query("SELECT 1"); })(), 5000).catch(() => down.push("shop DB")),
   ]);
   modeCache = { at: Date.now(), replay: down.length > 0, ...(down.length ? { reason: `${down.join(", ")} unreachable` } : {}) };

@@ -2,11 +2,16 @@
   "name": "Black Box",
   "tagline": "A crash investigator for AI agents",
   "track": "02 The Agent That Can Explain Why",
+  "user": "The on-call engineer or ops lead paged because an AI agent did something expensive",
+  "problem": "When a production AI agent misbehaves, nobody can say why with evidence, and the fix is a prompt patch nobody has tested against the failure",
+  "agents": ["WIT·1-3 witnesses (Zetaris queries, no model)", "RCA root cause (Nemotron)", "SKP skeptic (Nemotron + probes)", "CNT counterpart (Nemotron)", "REM remediator (no model)", "human approval", "Airlock replay"],
   "sponsors": {
-    "zetaris": "Every evidence query runs through the Zetaris REST API across the incident's data sources.",
-    "meterless": "World Model engine for the incident timeline and replay; H-MEM engine for memory of past findings; Nightshift as the primary AI provider.",
-    "nvidia": "Nemotron powers the investigating agents through Nightshift.",
-    "cursor": "To be completed during the build."
+    "zetaris": "Every evidence query runs through the Zetaris REST API across three registered sources (Postgres datasource, JSON and CSV filestore tables), including cross-source joins.",
+    "meterless": "World Model engine: event-sourced flight recorder with a point-in-time policy fold, and the store of signed guardrails. H-MEM engine: memory of signed findings with provenance. Nightshift Runtime: the primary AI provider (OpenAI-compatible, 127.0.0.1:8088).",
+    "nvidia": "Nemotron 3.5 Lightning through Nightshift runs the refund agent, Root-Cause, Skeptic and Counterpart; its token budget is the visible thinking budget, raised on refutation.",
+    "cursor": "Not used: Cursor became optional on 22 Oct (HackOS announcement); built with Claude Code."
   },
+  "reproducible": "npm run setup && npm run demo:check -- --replay (recordings of the last live run in data/recordings/)",
+  "license": "Apache-2.0",
   "_note": "Field names are provisional until checked against the HackOS Submission Form Preview."
 }
