@@ -42,21 +42,33 @@ export async function verifyContract(c: Contract, key: string): Promise<boolean>
 
 export interface GateResult { allow: boolean; contract_id: string; clause?: string }
 
-/** Builds the gate for one run: the contract must verify first, then each refund is checked against the live window. */
-export async function activateGate(c: Contract, key: string, liveMaxDays: number) {
+/** The only rule this gate knows how to enforce; a signed contract with any other rule is refused, not ignored. */
+const ENFORCED: GuardrailRule = { tool: "issue_refund", require: "days_since_delivery <= live_policy.max_return_days", live_source: "SHOP_PG.policy_versions WHERE valid_to IS NULL" };
+
+/**
+ * Builds the gate for one run: the contract must verify and carry the enforced rule; then each refund is
+ * checked against the live window, read on every check (as the signed rule says), never baked in.
+ */
+export async function activateGate(c: Contract, key: string, liveMaxDays: () => number | Promise<number>) {
   if (!(await verifyContract(c, key))) throw new ContractInvalid(`Contract ${c.id} is unsigned or altered; the gate will not activate.`);
-  return ({ days_since_delivery }: { days_since_delivery: number }): GateResult =>
-    days_since_delivery <= liveMaxDays ? { allow: true, contract_id: c.id } : { allow: false, contract_id: c.id, clause: c.clause };
+  if (JSON.stringify(c.rule) !== JSON.stringify(ENFORCED)) throw new ContractInvalid(`Contract ${c.id} has a rule this gate does not enforce; refusing to activate.`);
+  return async ({ days_since_delivery }: { days_since_delivery: number }): Promise<GateResult> =>
+    days_since_delivery <= (await liveMaxDays()) ? { allow: true, contract_id: c.id } : { allow: false, contract_id: c.id, clause: c.clause };
 }
 
 /** CONTRACT_SIGNING_KEY from .env, else a key generated once into data/runtime (gitignored). Never printed. */
 export function signingKey(env = process.env, dir = path.join(import.meta.dirname, "..", "..", "data", "runtime")): string {
   if (env.CONTRACT_SIGNING_KEY) return env.CONTRACT_SIGNING_KEY;
   const file = path.join(dir, "signing.key");
-  if (!fs.existsSync(file)) {
-    fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(file, crypto.randomBytes(32).toString("hex"), { mode: 0o600 });
+  fs.mkdirSync(dir, { recursive: true });
+  try {
+    // "wx" creates the file only if it does not exist, so two first requests cannot both write a key.
+    fs.writeFileSync(file, crypto.randomBytes(32).toString("hex"), { mode: 0o600, flag: "wx" });
     console.log(`generated a contract signing key in ${path.relative(process.cwd(), file)}`);
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
   }
-  return fs.readFileSync(file, "utf8").trim();
+  const key = fs.readFileSync(file, "utf8").trim();
+  if (!/^[0-9a-f]{64}$/.test(key)) throw new ContractInvalid(`${file} is not a 32-byte hex key; delete it to generate a new one.`);
+  return key;
 }

@@ -28,15 +28,17 @@ export interface Chat {
   chat(o: { messages: ChatMessage[]; model?: string; maxTokens?: number }): Promise<{ text: string; model: string; receipt?: Receipt }>;
 }
 
-/** Pulls the first JSON object out of a model reply; anything unparseable is a deny. */
+/** Finds the decision JSON in a model reply, braces in the reason included; anything unparseable is a deny. */
 export function parseDecision(text: string): { decision: "approve" | "deny"; reason: string } {
-  const m = text.match(/\{[\s\S]*?\}/);
-  try {
-    const j = JSON.parse(m?.[0] ?? "");
-    return { decision: j.decision === "approve" ? "approve" : "deny", reason: String(j.reason ?? "") };
-  } catch {
-    return { decision: "deny", reason: `unparseable reply: ${text.slice(0, 80)}` };
+  for (let start = text.indexOf("{"); start >= 0; start = text.indexOf("{", start + 1)) {
+    for (let end = text.lastIndexOf("}"); end > start; end = text.lastIndexOf("}", end - 1)) {
+      try {
+        const j = JSON.parse(text.slice(start, end + 1));
+        if (j && typeof j === "object" && "decision" in j) return { decision: j.decision === "approve" ? "approve" : "deny", reason: String(j.reason ?? "") };
+      } catch { /* try a shorter span */ }
+    }
   }
+  return { decision: "deny", reason: `unparseable reply: ${text.slice(0, 80)}` };
 }
 
 export async function runRefundAgent(opts: {
@@ -58,6 +60,7 @@ export async function runRefundAgent(opts: {
 
   async function handle(req: { id: string; order_id: string; reason: string }) {
     const { rows: [order] } = await db.query("SELECT id, amount_egp, delivered_at FROM orders WHERE id = $1", [req.order_id]);
+    if (!order) throw new Error(`refund request ${req.id} points at order ${req.order_id}, which does not exist`);
     const days = Math.floor((now.getTime() - new Date(order.delivered_at).getTime()) / 86_400_000);
     const lookup = { order_id: order.id, amount_egp: Number(order.amount_egp), days_since_delivery: days };
     await logTool(req.id, "lookup_order", { order_id: req.order_id }, lookup);
@@ -77,7 +80,8 @@ export async function runRefundAgent(opts: {
     if (blocked_by) {
       await logTool(req.id, "issue_refund", { order_id: order.id, amount_egp: lookup.amount_egp }, { status: "blocked", ...blocked_by });
     } else if (decision === "approve") {
-      const refund = { id: `RF-${req.id.slice(3)}`, request_id: req.id, order_id: order.id, amount_egp: lookup.amount_egp, issued_at: clock(), run_id: runId };
+      // A replay of chosen requests gets its own refund ids, so it can never collide with the incident's.
+      const refund = { id: opts.requestIds ? `RF-${req.id.slice(3)}-${runId}` : `RF-${req.id.slice(3)}`, request_id: req.id, order_id: order.id, amount_egp: lookup.amount_egp, issued_at: clock(), run_id: runId };
       await db.query("INSERT INTO refunds (id, request_id, order_id, amount_egp, issued_at, run_id) VALUES ($1,$2,$3,$4,$5,$6)",
         [refund.id, refund.request_id, refund.order_id, refund.amount_egp, refund.issued_at, refund.run_id]);
       await logTool(req.id, "issue_refund", { order_id: order.id, amount_egp: lookup.amount_egp }, { refund_id: refund.id, status: "paid" });
@@ -92,9 +96,15 @@ export async function runRefundAgent(opts: {
     opts.onTrace?.(trace);
   }
 
+  // On the first failure every worker stops taking requests, and the run reports the failure only after all
+  // have stopped, so nothing keeps writing once the caller sees the error (or has rolled back its transaction).
+  let failure: { error: unknown } | undefined;
   const workers = Array.from({ length: opts.concurrency ?? 2 }, async () => {
-    for (let req = queue.shift(); req; req = queue.shift()) await handle(req);
+    for (let req = queue.shift(); req && !failure; req = queue.shift()) {
+      try { await handle(req); } catch (error) { failure ??= { error }; }
+    }
   });
   await Promise.all(workers);
+  if (failure) throw failure.error;
   return traces.sort((a, b) => a.request_id.localeCompare(b.request_id));
 }

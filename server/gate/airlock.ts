@@ -22,13 +22,18 @@ export async function runAirlock({ pool, ai, contract, key, emit }: {
   const db = await pool.connect();
   try {
     await db.query("BEGIN");
-    const { rows: [live] } = await db.query("SELECT version, max_return_days FROM policy_versions WHERE valid_to IS NULL");
+    const livePolicy = async () => {
+      const { rows } = await db.query("SELECT version, max_return_days FROM policy_versions WHERE valid_to IS NULL");
+      if (rows.length !== 1) throw new Error(`expected exactly one live refund policy, found ${rows.length}`);
+      return rows[0] as { version: number; max_return_days: number };
+    };
+    const live = await livePolicy();
     // The same requests the incident paid outside the live window, computed the way the agent computes days.
     const { rows: bad } = await db.query(
       `SELECT f.request_id FROM refunds f JOIN orders o ON o.id = f.order_id
        WHERE floor(extract(epoch FROM ($1::timestamptz - o.delivered_at)) / 86400) > $2 ORDER BY f.request_id`,
       [INCIDENT_AT, live.max_return_days]);
-    const gate = await activateGate(contract, key, live.max_return_days);
+    const gate = await activateGate(contract, key, async () => (await livePolicy()).max_return_days);
     emit({ type: "airlock-start", contract_id: contract.id, signer: contract.approved_by!, signature: contract.signature!, requests: bad.length, live_max_days: live.max_return_days, live_version: live.version });
 
     const traces = await runRefundAgent({

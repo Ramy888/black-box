@@ -27,12 +27,26 @@ describe("guardrail contract", () => {
 
   it("will not activate on an altered contract", async () => {
     const c = await signed();
-    await expect(activateGate({ ...c, evidence: ["L9"] }, KEY, 14)).rejects.toBeInstanceOf(ContractInvalid);
+    await expect(activateGate({ ...c, evidence: ["L9"] }, KEY, () => 14)).rejects.toBeInstanceOf(ContractInvalid);
+  });
+
+  it("refuses a properly signed contract whose rule it does not enforce", async () => {
+    const other = await signContract({ ...proposal, rule: { ...proposal.rule, tool: "send_email" as "issue_refund" } }, KEY, "On-call lead", new Date());
+    expect(await verifyContract(other, KEY)).toBe(true);
+    await expect(activateGate(other, KEY, () => 14)).rejects.toThrow(/does not enforce/);
+  });
+
+  it("reads the live window on every check, never baked in at activation", async () => {
+    let live = 14;
+    const gate = await activateGate(await signed(), KEY, () => live);
+    expect((await gate({ days_since_delivery: 20 })).allow).toBe(false);
+    live = 30; // finance widens the window again
+    expect((await gate({ days_since_delivery: 20 })).allow).toBe(true);
   });
 
   it("allows refunds inside the live window and blocks the rest with the clause", async () => {
-    const gate = await activateGate(await signed(), KEY, 14);
-    expect(gate({ days_since_delivery: 14 })).toEqual({ allow: true, contract_id: "GC-0417-1" });
-    expect(gate({ days_since_delivery: 15 })).toEqual({ allow: false, contract_id: "GC-0417-1", clause: proposal.clause });
+    const gate = await activateGate(await signed(), KEY, () => 14);
+    expect(await gate({ days_since_delivery: 14 })).toEqual({ allow: true, contract_id: "GC-0417-1" });
+    expect(await gate({ days_since_delivery: 15 })).toEqual({ allow: false, contract_id: "GC-0417-1", clause: proposal.clause });
   });
 });

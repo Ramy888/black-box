@@ -13,7 +13,7 @@ import { zetarisFromEnv } from "./data/zetaris.ts";
 import { incidentMemory } from "./engines/hmem.ts";
 import { loadFlightRows, replayFlight } from "./engines/world-model.ts";
 import { AIRLOCK_RUN, runAirlock, type AirlockEvent } from "./gate/airlock.ts";
-import { signContract, signingKey, type Contract } from "./gate/contract.ts";
+import { ContractInvalid, signContract, signingKey, verifyContract, type Contract } from "./gate/contract.ts";
 import { guardrailStore } from "./gate/store.ts";
 import { recording, replaying } from "./replay.ts";
 
@@ -129,6 +129,8 @@ app.get("/api/airlock", (c) => sse<AirlockEvent>(c, async (send) => {
   const contract = (await store).latest();
   if (!contract) throw new Error("No signed guardrail yet. Approve and sign the contract first.");
   if (await isReplay()) {
+    // The live path verifies in activateGate; replay must not show an unverified contract as active either.
+    if (!(await verifyContract(contract, signingKey()))) throw new ContractInvalid(`Contract ${contract.id} is unsigned or altered; the gate will not activate.`);
     if (!fs.existsSync(AIRLOCK_RECORDING)) throw new Error("No Airlock recording yet. Run one live Airlock first.");
     for (const e of JSON.parse(fs.readFileSync(AIRLOCK_RECORDING, "utf8")) as AirlockEvent[]) {
       send(e.type === "airlock-start" ? { ...e, contract_id: contract.id, signer: contract.approved_by!, signature: contract.signature! } : e);

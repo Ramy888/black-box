@@ -52,3 +52,38 @@ describe("refund agent behind a gate", () => {
     expect(db.writes.some((w) => w.sql.startsWith("INSERT INTO refunds"))).toBe(true);
   });
 });
+
+describe("refund agent robustness", () => {
+  it("reads a decision whose reason contains braces, and skips braces before the JSON", () => {
+    expect(parseDecision('{"decision":"approve","reason":"within {30} days"}')).toEqual({ decision: "approve", reason: "within {30} days" });
+    expect(parseDecision('Sure {see below} {"decision":"approve","reason":"ok"}')).toEqual({ decision: "approve", reason: "ok" });
+  });
+
+  it("stops every worker after the first failure, so nothing is written after the caller sees the error", async () => {
+    const writes: string[] = [];
+    const db = {
+      async query(sql: string, values: unknown[] = []) {
+        if (sql.includes("FROM refund_requests")) return { rows: ["RR-0001", "RR-0002", "RR-0003", "RR-0004", "RR-0005"].map((id) => ({ id, order_id: `O-${id.slice(3)}`, reason: "x" })) };
+        if (sql.includes("FROM orders")) return { rows: [{ id: values[0], amount_egp: "10", delivered_at: "2026-10-20T10:00:00Z" }] };
+        if (sql.startsWith("INSERT INTO refunds")) writes.push(String(values[1]));
+        return { rows: [] };
+      },
+    };
+    let calls = 0;
+    const ai = { chat: async () => {
+      if (++calls === 1) throw new Error("model down");
+      await new Promise((r) => setTimeout(r, 5));
+      return { text: '{"decision":"approve","reason":"ok"}', model: "m" };
+    } };
+    await expect(runRefundAgent({ db, ai, runId: "r", now: new Date("2026-10-21T10:00:00Z") })).rejects.toThrow("model down");
+    const atFailure = writes.length;
+    await new Promise((r) => setTimeout(r, 50));
+    expect(writes.length).toBe(atFailure); // no stray worker kept paying
+    expect(writes.length).toBeLessThanOrEqual(1); // at most the one request already in flight
+  });
+
+  it("fails clearly when a request points at a missing order", async () => {
+    const db = { async query(sql: string) { return { rows: sql.includes("FROM refund_requests") ? [{ id: "RR-0009", order_id: "O-404", reason: "x" }] : [] }; } };
+    await expect(runRefundAgent({ db, ai: { chat: async () => ({ text: "{}", model: "m" }) }, runId: "r", now: new Date() })).rejects.toThrow(/order O-404, which does not exist/);
+  });
+});
