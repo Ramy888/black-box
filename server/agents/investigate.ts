@@ -15,7 +15,7 @@ export interface LedgerRow {
 }
 
 export type InvestigationEvent =
-  | { type: "mode"; mode: "live" | "replay" }
+  | { type: "mode"; mode: "live" | "replay"; reason?: string }
   | { type: "memory"; recalled: Recalled }
   | { type: "agent"; callsign: string; state: "working" | "done" | "failed"; note: string }
   | { type: "evidence"; evidence: Evidence }

@@ -16,6 +16,7 @@ type AgentState = { state: "idle" | "working" | "done" | "failed"; note: string 
 
 export function Investigation() {
   const [mode, setMode] = useState<"live" | "replay">();
+  const [modeReason, setModeReason] = useState<string>();
   const [running, setRunning] = useState(false);
   const [agents, setAgents] = useState<Record<string, AgentState>>({});
   const [evidence, setEvidence] = useState<Evidence[]>([]);
@@ -42,7 +43,7 @@ export function Investigation() {
     es.onmessage = (m) => {
       const e = JSON.parse(m.data) as InvestigationEvent;
       setEvents((v) => [...v, e]);
-      if (e.type === "mode") setMode(e.mode);
+      if (e.type === "mode") { setMode(e.mode); setModeReason(e.reason); }
       if (e.type === "agent") setAgents((a) => ({ ...a, [e.callsign]: { state: e.state, note: e.note } }));
       if (e.type === "evidence") setEvidence((v) => [...v, e.evidence].sort((a, b) => a.cell.localeCompare(b.cell)));
       if (e.type === "ledger") setLedger((v) => [...v, e.row]);
@@ -63,7 +64,7 @@ export function Investigation() {
     <section className="room">
       <header className="room-head">
         <button className="primary" onClick={start} disabled={running}>{running ? "Investigating…" : "Investigate"}</button>
-        {mode && <span className={`mode ${mode}`}>{mode === "replay" ? "Replay: recorded run" : "Live: Zetaris + Nightshift"}</span>}
+        {mode && <span className={`mode ${mode}`}>{mode === "replay" ? `Replay: recorded run${modeReason ? ` (${modeReason})` : ""}` : "Live: Zetaris + Nightshift"}</span>}
         {status && <span className={status.startsWith("Investigation failed") || status.startsWith("Lost") ? "error" : "muted"}>{status}</span>}
       </header>
 

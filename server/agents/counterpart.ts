@@ -10,7 +10,7 @@ import type { Evidence } from "./witness.ts";
 export interface Exchange { target: string; question: string; answer: string; cites: string[]; weak: boolean }
 
 export type CrossExamEvent =
-  | { type: "mode"; mode: "live" | "replay" }
+  | { type: "mode"; mode: "live" | "replay"; reason?: string }
   | { type: "model"; call: ModelCall }
   | { type: "exchange"; exchange: Exchange }
   | { type: "crossexam-done"; asked: number; weak: string[] }

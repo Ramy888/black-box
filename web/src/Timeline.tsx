@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { FlightEvent } from "../../server/engines/world-model.ts";
 
-interface Flight { engine: string; runId: string; policyAtIncident: number; bad: number; events: FlightEvent[] }
+interface Flight { engine: string; runId: string; policyAtIncident: number; bad: number; events: FlightEvent[]; replay?: boolean }
 
 const TICK = { policy: 0.9, ticket: 0.7, decision: 0.45, bad: 0.62 } as const;
 
@@ -44,7 +44,7 @@ export function Timeline() {
     <section className="panel">
       <header>
         <b>Flight recorder</b>
-        <span className="mono muted">REC · {flight.runId} · {n} events · {flight.engine}</span>
+        <span className="mono muted">REC · {flight.runId} · {n} events · {flight.engine}{flight.replay ? " · recorded" : ""}</span>
       </header>
       <svg className="strip" viewBox="0 0 1000 120" preserveAspectRatio="none" role="img"
         aria-label={`${n} recorded events, ${flight.bad} refunds paid outside the live policy`}>
