@@ -26,6 +26,7 @@ export function Investigation() {
   const [proposal, setProposal] = useState<Contract>();
   const [approved, setApproved] = useState<Contract>();
   const [weak, setWeak] = useState<string[]>([]);
+  const [recalled, setRecalled] = useState<Extract<InvestigationEvent, { type: "memory" }>["recalled"]>();
 
   useEffect(() => {
     fetch("/api/contract").then((r) => r.json()).then((b) => setApproved(b.approved ?? undefined)).catch(() => {});
@@ -34,7 +35,7 @@ export function Investigation() {
 
   function start() {
     source.current?.close();
-    setAgents({}); setEvidence([]); setLedger([]); setCalls([]); setEvents([]); setWeak([]); setProposal(undefined); setStatus(undefined); setRunning(true);
+    setAgents({}); setEvidence([]); setLedger([]); setCalls([]); setEvents([]); setWeak([]); setRecalled(undefined); setProposal(undefined); setStatus(undefined); setRunning(true);
     const es = new EventSource("/api/investigate");
     source.current = es;
     const stop = (msg: string) => { setStatus(msg); setRunning(false); es.close(); };
@@ -46,6 +47,7 @@ export function Investigation() {
       if (e.type === "evidence") setEvidence((v) => [...v, e.evidence].sort((a, b) => a.cell.localeCompare(b.cell)));
       if (e.type === "ledger") setLedger((v) => [...v, e.row]);
       if (e.type === "model") setCalls((v) => [...v, e.call]);
+      if (e.type === "memory") setRecalled(e.recalled);
       if (e.type === "contract") setProposal(e.contract);
       if (e.type === "verdict") setLedger((v) => v.map((r) => (r.id === e.verdict.id ? { ...r, status: e.verdict.status, verdict: e.verdict } : r)));
       if (e.type === "done") stop(`${e.survives} claims survive, ${e.struck} struck by SKP · ${Math.round(e.ms / 1000)} s`);
@@ -65,6 +67,15 @@ export function Investigation() {
         {status && <span className={status.startsWith("Investigation failed") || status.startsWith("Lost") ? "error" : "muted"}>{status}</span>}
       </header>
 
+      {recalled && (
+        <aside className="memory" role="note">
+          <b>Remembered from {recalled.case_id}</b> <span className="mono muted">H-MEM · relevance {recalled.relevance} · {recalled.label}</span>
+          <p>{recalled.content}</p>
+          <details><summary className="mono muted">provenance: {recalled.refs.filter((r) => !r.includes(":")).join(" ")} · {recalled.refs.filter((r) => r.includes(":")).length} Zetaris queries</summary>
+            {recalled.refs.filter((r) => r.includes(":")).map((r) => <pre key={r} className="mono">{r}</pre>)}
+          </details>
+        </aside>
+      )}
       <div className="room-grid">
         <section className="panel agents">
           <header><b>Agents</b><span className="mono muted">callsign · state</span></header>

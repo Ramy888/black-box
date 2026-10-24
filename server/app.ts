@@ -10,6 +10,7 @@ import { crossExamine, type CrossExamEvent } from "./agents/counterpart.ts";
 import { investigate } from "./agents/investigate.ts";
 import { meterlessFromEnv } from "./ai/provider.ts";
 import { zetarisFromEnv } from "./data/zetaris.ts";
+import { incidentMemory } from "./engines/hmem.ts";
 import { loadFlightRows, replayFlight } from "./engines/world-model.ts";
 import { AIRLOCK_RUN, runAirlock, type AirlockEvent } from "./gate/airlock.ts";
 import { signContract, signingKey, type Contract } from "./gate/contract.ts";
@@ -26,6 +27,7 @@ const proposals = new Map<string, Contract>();
 // The last finished investigation in this process, which the Counterpart cross-examines.
 let lastInvestigation: Awaited<ReturnType<typeof investigate>> | undefined;
 const store = guardrailStore();
+const memory = incidentMemory();
 let pool: pg.Pool | undefined;
 
 /** Streams events as SSE. Writes are chained and serialised at send time, so a burst emitted
@@ -61,6 +63,9 @@ app.get("/api/investigate", (c) => sse(c, async (send) => {
   const zx = replay ? undefined : zetarisFromEnv();
   const deps = replay ? replaying(RECORDING) : { query: rec!.query((sql) => zx!.query(sql)), ai: rec!.ai(meterlessFromEnv()) };
   send({ type: "mode", mode: replay ? "replay" : "live" });
+  // H-MEM recall of past signed findings is shown, not fed to the agents, so recordings still replay.
+  const recalled = (await memory).recall();
+  if (recalled) send({ type: "memory", recalled });
   const out = await investigate({ ...deps, emit: send });
   if (out.contract) proposals.set(out.contract.id, out.contract);
   lastInvestigation = out;
@@ -87,6 +92,7 @@ app.post("/api/contract/:id/approve", async (c) => {
   if (!proposal) return c.json({ error: "No such proposal in this session. Run Investigate first." }, 404);
   const signed = await signContract(proposal, signingKey(), process.env.APPROVER_ROLE || "On-call lead", new Date());
   await (await store).record(signed);
+  if (lastInvestigation) (await memory).remember({ contract: signed, ledger: lastInvestigation.ledger, evidence: lastInvestigation.evidence });
   return c.json({ approved: signed });
 });
 

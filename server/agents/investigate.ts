@@ -2,6 +2,7 @@
 // claim lands in the Evidence Ledger with the Zetaris queries of the cells it cites.
 
 import { runRootCause, type Chat, type ModelCall } from "./root-cause.ts";
+import type { Recalled } from "../engines/hmem.ts";
 import type { Contract } from "../gate/contract.ts";
 import { proposeGuardrail } from "./remediator.ts";
 import { runSkeptic, type Verdict } from "./skeptic.ts";
@@ -15,6 +16,7 @@ export interface LedgerRow {
 
 export type InvestigationEvent =
   | { type: "mode"; mode: "live" | "replay" }
+  | { type: "memory"; recalled: Recalled }
   | { type: "agent"; callsign: string; state: "working" | "done" | "failed"; note: string }
   | { type: "evidence"; evidence: Evidence }
   | { type: "handoff"; from: string; to: string; note: string }

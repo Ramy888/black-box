@@ -116,3 +116,6 @@ button.stamp { width: 100%; }
 .exchanges li { border-top: 1px solid var(--rule); padding: 9px 0; }
 .exchanges li p { margin: 0 0 4px; }
 .exchanges li.weak { border-left: 3px solid var(--refuted); padding-left: 10px; }
+.memory { background: var(--surface); border: 1.5px solid var(--ink); border-left: 6px solid var(--tag); border-radius: 2px; padding: 10px 14px; margin-bottom: 16px; }
+.memory p { margin: 6px 0; }
+.memory pre { white-space: pre-wrap; font-size: 11px; margin: 4px 0 0; color: var(--muted); }
