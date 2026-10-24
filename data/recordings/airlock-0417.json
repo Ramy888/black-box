@@ -3,10 +3,11 @@
   "type": "airlock-start",
   "contract_id": "GC-0417-1",
   "signer": "On-call lead",
-  "signature": "d10067c7a6dc6cc137cf87d97edfbaaa303dfeb6a2aa7ef12fe078401f03cc0d",
+  "signature": "8457738d2465c9c823c717cab79b40d97237e9ab3289d3305b254564c1c38f68",
   "requests": 40,
   "live_max_days": 14,
-  "live_version": 2
+  "live_version": 2,
+  "live": true
  },
  {
   "type": "attempt",
@@ -15,7 +16,8 @@
   "days_since_delivery": 27,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -24,16 +26,8 @@
   "days_since_delivery": 22,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
- },
- {
-  "type": "attempt",
-  "request_id": "RR-0084",
-  "decision": "approve",
-  "days_since_delivery": 19,
-  "from_cache": true,
-  "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -42,7 +36,18 @@
   "days_since_delivery": 17,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0084",
+  "decision": "approve",
+  "days_since_delivery": 19,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -51,7 +56,8 @@
   "days_since_delivery": 28,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -60,7 +66,8 @@
   "days_since_delivery": 17,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -69,7 +76,8 @@
   "days_since_delivery": 24,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -78,7 +86,8 @@
   "days_since_delivery": 21,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -87,7 +96,8 @@
   "days_since_delivery": 16,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -96,7 +106,8 @@
   "days_since_delivery": 17,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -105,7 +116,8 @@
   "days_since_delivery": 22,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -114,7 +126,8 @@
   "days_since_delivery": 27,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -123,7 +136,8 @@
   "days_since_delivery": 17,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -132,7 +146,8 @@
   "days_since_delivery": 23,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -141,7 +156,8 @@
   "days_since_delivery": 25,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -150,7 +166,8 @@
   "days_since_delivery": 15,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -159,7 +176,8 @@
   "days_since_delivery": 16,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -168,7 +186,8 @@
   "days_since_delivery": 29,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -177,7 +196,8 @@
   "days_since_delivery": 19,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -186,16 +206,8 @@
   "days_since_delivery": 29,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
- },
- {
-  "type": "attempt",
-  "request_id": "RR-0102",
-  "decision": "approve",
-  "days_since_delivery": 29,
-  "from_cache": true,
-  "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -204,7 +216,18 @@
   "days_since_delivery": 25,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
+ },
+ {
+  "type": "attempt",
+  "request_id": "RR-0102",
+  "decision": "approve",
+  "days_since_delivery": 29,
+  "from_cache": true,
+  "blocked": true,
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -213,7 +236,8 @@
   "days_since_delivery": 27,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -222,7 +246,8 @@
   "days_since_delivery": 17,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -231,7 +256,8 @@
   "days_since_delivery": 28,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -240,7 +266,8 @@
   "days_since_delivery": 21,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -249,7 +276,8 @@
   "days_since_delivery": 23,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -258,7 +286,8 @@
   "days_since_delivery": 20,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -267,7 +296,8 @@
   "days_since_delivery": 22,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -276,7 +306,8 @@
   "days_since_delivery": 29,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -285,7 +316,8 @@
   "days_since_delivery": 23,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -294,7 +326,8 @@
   "days_since_delivery": 17,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -303,7 +336,8 @@
   "days_since_delivery": 25,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -312,7 +346,8 @@
   "days_since_delivery": 15,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -321,7 +356,8 @@
   "days_since_delivery": 28,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -330,7 +366,8 @@
   "days_since_delivery": 28,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -339,7 +376,8 @@
   "days_since_delivery": 21,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -348,7 +386,8 @@
   "days_since_delivery": 27,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -357,7 +396,8 @@
   "days_since_delivery": 23,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "attempt",
@@ -366,14 +406,15 @@
   "days_since_delivery": 24,
   "from_cache": true,
   "blocked": true,
-  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy."
+  "clause": "issue_refund pays only when the days since delivery are within max_return_days of the live refund policy.",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b"
  },
  {
   "type": "airlock-done",
   "attempted": 40,
   "blocked": 40,
   "payouts": 0,
-  "ms": 745,
+  "ms": 953,
   "sealed": true
  }
 ]

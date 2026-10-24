@@ -120,3 +120,4 @@ button.stamp { width: 100%; }
 .memory p { margin: 6px 0; }
 .memory pre { white-space: pre-wrap; font-size: 11px; margin: 4px 0 0; color: var(--muted); }
 .mode-banner { background: var(--surface); border: 1.5px dashed var(--ink); border-radius: 2px; padding: 8px 12px; margin: 0 0 16px; font-size: 14px; }
+.ledger tr .status b.error { color: var(--refuted); } /* "Weak under CNT" stays red even on a surviving row */
