@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {
-    "setup": "npx --yes degit --force meterless/meterless/engines/hmem/reference vendor/hmem && npx --yes degit --force meterless/meterless/engines/world-model/reference vendor/world-model",
+    "setup": "npx --yes degit --force meterless/meterless/engines/hmem/reference#1742dec56a66e58eef9dda2d2b865823758ca8cd vendor/hmem && npx --yes degit --force meterless/meterless/engines/world-model/reference#1742dec56a66e58eef9dda2d2b865823758ca8cd vendor/world-model",
     "dev": "tsx watch server/index.ts",
     "dev:web": "vite web",
     "build": "tsc --noEmit && vite build web",

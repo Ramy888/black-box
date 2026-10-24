@@ -82,7 +82,7 @@ Requirements: Node 22+. Everything else is optional.
 ```bash
 npm install
 npm run setup          # vendors the Meterless World Model and H-MEM engines into vendor/
-npm test               # 63 tests
+npm test
 npm run demo:check -- --replay
 ```
 
