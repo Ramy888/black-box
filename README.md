@@ -6,7 +6,7 @@ Open Agent Hackathon 2026 · **Track 02: The Agent That Can Explain Why.**
 
 ## Demo video and deck
 
-- **Demo video (2:48):** [docs/submission/OAH2026-BlackBox-ExplainWhy-Demo.mp4](docs/submission/OAH2026-BlackBox-ExplainWhy-Demo.mp4). The investigation is replayed from a recorded live run on synthetic data; the Airlock at the end runs live through Nightshift.
+- **Demo video (2:40):** [docs/submission/OAH2026-BlackBox-ExplainWhy-Demo.mp4](docs/submission/OAH2026-BlackBox-ExplainWhy-Demo.mp4). The investigation is replayed from a recorded live run on synthetic data; the Airlock at the end runs live through Nightshift.
 - **Slide deck (13 slides):** [docs/submission/OAH2026-BlackBox-ExplainWhy-Deck.pdf](docs/submission/OAH2026-BlackBox-ExplainWhy-Deck.pdf)
 
 ## Who it is for
